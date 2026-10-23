@@ -1,0 +1,20 @@
+.logoloop {
+  position: relative;
+  overflow: hidden;
+  padding-block: var(--logoloop-pad, 0px);
+  --logoloop-gap: 32px;
+  --logoloop-logoHeight: 28px;
+}
+.logoloop--vertical { height: 100%; }
+.logoloop__track { display: flex; width: max-content; will-change: transform; user-select: none; }
+.logoloop--vertical .logoloop__track { flex-direction: column; height: max-content; width: 100%; }
+.logoloop__list { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
+.logoloop--vertical .logoloop__list { flex-direction: column; }
+.logoloop__item { position: relative; flex: none; margin-right: var(--logoloop-gap); line-height: 1; }
+.logoloop--vertical .logoloop__item { margin-right: 0; margin-bottom: var(--logoloop-gap); }
+.logoloop__content { display: flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; transform-origin: center; }
+.logoloop__item img, .logoloop__node { display: block; height: var(--logoloop-logoHeight); width: auto; object-fit: contain; pointer-events: none; }
+.logoloop[data-intro] .logoloop__item { opacity: 0; }
+.logoloop[data-draggable] { cursor: grab; touch-action: pan-y; }
+.logoloop[data-dragging] { cursor: grabbing; }
+.logoloop[data-muted] .logoloop__content { filter: grayscale(var(--logoloop-gray, 0)); opacity: var(--logoloop-dim, 1); }
