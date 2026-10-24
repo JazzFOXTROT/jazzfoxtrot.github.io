@@ -77,7 +77,7 @@ export default function MeSection() {
         mediaZoom={1}
         overlayScrim={0}
         scrollDistance={1.1}
-        holdDistance={0.6}
+        holdDistance={0.3}
         smoothing={0.08}
         onProgress={onProgress}
         stayOpen

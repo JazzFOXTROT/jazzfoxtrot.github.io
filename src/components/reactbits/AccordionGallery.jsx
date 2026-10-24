@@ -32,7 +32,8 @@ const AccordionGallery = ({
   trigger = 'hover',
   showLabels = true,
   grayscale = true,
-  className = ''
+  className = '',
+  activeIndex // portfolio extension: drive the open panel from outside (mobile: by scroll)
 }) => {
   const rootRef = useRef(null);
   const panelRefs = useRef([]);
@@ -46,6 +47,10 @@ const AccordionGallery = ({
   const vertical = orientation === 'vertical';
   const count = items.length;
   const [active, setActive] = useState(Math.min(Math.max(defaultIndex, 0), count - 1));
+
+  useEffect(() => {
+    if (typeof activeIndex === 'number' && activeIndex >= 0 && activeIndex < count) setActive(activeIndex);
+  }, [activeIndex, count]);
 
   const prefersReduced =
     typeof window !== 'undefined' && window.matchMedia

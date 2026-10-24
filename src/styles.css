@@ -36,6 +36,7 @@ body {
   overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
+p, h1, h2 { text-wrap: pretty; } /* avoids a lonely last word where supported */
 a { color: inherit; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.01em; }
@@ -414,6 +415,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .section-rule { gap: 12px; }
   .contacts { padding: var(--s-64) 16px 180px; }
   .contact-form__row { grid-template-columns: 1fr; }
+  .to-top { right: auto; left: 16px; bottom: 16px; } /* keeps clear of the right-aligned Send button */
   .contacts__ornament { --o-scale: 0.42; left: 12px; bottom: 24px; }
   .project__curtain { padding-inline: 16px; }
   .project__open { display: none; }

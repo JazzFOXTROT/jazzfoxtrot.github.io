@@ -152,6 +152,7 @@ export default function Hero() {
         <h1 className="hero__title serif">
           {hero.titleStart}{' '}
           <span className="hero__end">
+          {hero.titleJoin}{' '}
           <RotatingText
             texts={hero.rotating}
             mainClassName="hero__rotate"

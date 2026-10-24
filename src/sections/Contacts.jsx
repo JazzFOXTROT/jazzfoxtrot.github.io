@@ -56,7 +56,7 @@ export default function Contacts() {
         <h2 id="contacts-title" className="contacts__title serif">Contacts</h2>
       </div>
       <p className="contacts__lead">
-        Open to UX/UI and Product Design roles, in Israel and abroad. Saw my work and want to collaborate? Leave a message.
+        Open to UX/UI and Product Design roles, in Israel and abroad. Saw my work and want to collaborate? Leave a message.
       </p>
 
       <form className="contact-form" onSubmit={onSubmit}>

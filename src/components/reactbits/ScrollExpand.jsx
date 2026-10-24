@@ -126,19 +126,22 @@ const ScrollExpand = ({
     let target = 0;
     let stageH = 0;
     let running = false;
+    let opened = false;
+    let collapsed = false; // stayOpen: after the first full pass, the pinned scroll length is removed
 
     const measure = () => {
       const c = propsRef.current;
       stageH = c.useWindowScroll ? window.innerHeight : root.clientHeight;
       if (stageH <= 0) return;
       stage.style.height = `${stageH}px`;
-      track.style.height = `${stageH * (1 + Math.max(0, c.scrollDistance) + Math.max(0, c.holdDistance))}px`;
+      track.style.height = collapsed
+        ? `${stageH}px`
+        : `${stageH * (1 + Math.max(0, c.scrollDistance) + Math.max(0, c.holdDistance))}px`;
 
       const w = root.clientWidth || stageH;
       stage.style.setProperty('--se-title-size', `${clamp(w * 0.075, 20, 84)}px`);
     };
 
-    let opened = false;
     const readProgress = () => {
       const c = propsRef.current;
       if (!c.enabled || opened) return 1;
@@ -171,6 +174,14 @@ const ScrollExpand = ({
     };
 
     const onScroll = () => {
+      // Once it has opened and the reader has scrolled past it, drop the extra pinned length.
+      // The removed height is above the viewport, so compensating the scroll makes it invisible.
+      if (opened && !collapsed && propsRef.current.useWindowScroll && track.getBoundingClientRect().bottom <= 0) {
+        const before = track.offsetHeight;
+        collapsed = true;
+        measure();
+        window.scrollBy(0, -(before - track.offsetHeight));
+      }
       target = readProgress();
       if (propsRef.current.smoothing <= 0 || reduceMotion) {
         current = target;

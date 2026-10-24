@@ -2,7 +2,8 @@
 // Facts come from Kirill's resume (Oct 2026). Nothing invented.
 
 export const hero = {
-  titleStart: 'From insight to',
+  titleStart: 'From insight',
+  titleJoin: 'to', // kept with the rotating word so it never sits alone on a phone
   rotating: ['interaction', 'clarity', 'impact', 'experience'],
   lines:
     'UX/UI & Product Designer with a graphic design background. I take products from research to a working prototype.',

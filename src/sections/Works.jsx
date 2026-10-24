@@ -54,10 +54,34 @@ function useGalleryHeight(ref, narrow) {
   return h;
 }
 
+// Phones: the card under the middle of the screen opens as you scroll past the gallery.
+function useScrollIndex(ref, enabled, count) {
+  const [index, setIndex] = useState(undefined);
+  useEffect(() => {
+    if (!enabled) { setIndex(undefined); return undefined; }
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const p = (window.innerHeight * 0.5 - r.top) / Math.max(1, r.height);
+      setIndex(Math.min(count - 1, Math.max(0, Math.floor(p * count))));
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(read); };
+    read();
+    window.addEventListener('scroll', on, { passive: true });
+    window.addEventListener('resize', on);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', on); window.removeEventListener('resize', on); };
+  }, [ref, enabled, count]);
+  return index;
+}
+
 export default function Works() {
   const narrow = useNarrow();
   const galleryRef = useRef(null);
   const height = useGalleryHeight(galleryRef, narrow);
+  const scrollIndex = useScrollIndex(galleryRef, narrow, projects.length);
   const items = projects.map(p => ({
     image: asset(p.card),
     label: p.name,
@@ -92,6 +116,7 @@ export default function Works() {
           showLabels={false}
           grayscale
           tilt={6}
+          activeIndex={scrollIndex}
         />
       </div>
     </section>
