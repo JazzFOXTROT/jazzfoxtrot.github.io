@@ -178,10 +178,22 @@ const ScrollExpand = ({
       // Once it has opened and the reader has scrolled past it, drop the extra pinned length.
       // The removed height is above the viewport, so compensating the scroll makes it invisible.
       if (opened && !collapsed && propsRef.current.useWindowScroll && track.getBoundingClientRect().bottom <= 0) {
+        // Browsers' scroll anchoring would also "fix" the jump, and the two corrections added up
+        // (the page jumped back into "Me"). Switch anchoring off for this one change and set the
+        // exact position ourselves.
+        const html = document.documentElement;
+        const prevAnchor = html.style.overflowAnchor;
+        html.style.overflowAnchor = 'none';
+        const y = window.scrollY;
         const before = track.offsetHeight;
         collapsed = true;
         measure();
-        window.scrollBy(0, -(before - track.offsetHeight));
+        const want = y - (before - track.offsetHeight);
+        window.scrollTo(0, want);
+        requestAnimationFrame(() => {
+          if (Math.abs(window.scrollY - want) > 200) window.scrollTo(0, want);
+          html.style.overflowAnchor = prevAnchor;
+        });
       }
       if (openRaf) return; // the self-playing open is in charge
       target = readProgress();
