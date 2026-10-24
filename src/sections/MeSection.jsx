@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import ScrollExpand from '../components/reactbits/ScrollExpand.jsx';
-import { about } from '../content.js';
+import { about, aboutBackground } from '../content.js';
 import { asset } from '../asset.js';
 
 /*
@@ -48,10 +48,15 @@ export default function MeSection() {
       {about.map((t, i) => (
         <p key={i} style={{ '--i': i }}>{t}</p>
       ))}
+      <p className="me__background" style={{ '--i': about.length }}>
+        <strong>Background:</strong> {aboutBackground}
+      </p>
     </div>
   );
 
-  if (!desktop) {
+  // Reduced motion: the section is shown already open, no scroll-driven reveal.
+  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!desktop || reduce) {
     return (
       <section id="me" className="me me--static" ref={sectionRef} aria-labelledby="me-title">
         <h2 id="me-title" className="me__title serif">Me</h2>

@@ -5,6 +5,7 @@ import MeSection from '../sections/MeSection.jsx';
 import Campaigns from '../sections/Campaigns.jsx';
 import Works from '../sections/Works.jsx';
 import Contacts from '../sections/Contacts.jsx';
+import Bring from '../sections/Bring.jsx';
 import ToTop from '../components/ToTop.jsx';
 
 export default function Home() {
@@ -27,9 +28,10 @@ export default function Home() {
   return (
     <main className="home">
       <Hero />
-      <MeSection />
-      <Campaigns />
       <Works />
+      <Campaigns />
+      <MeSection />
+      <Bring />
       <Contacts />
       <ToTop />
     </main>

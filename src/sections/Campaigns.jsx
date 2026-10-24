@@ -1,3 +1,4 @@
+import { campaigns } from '../content.js';
 import LogoLoop from '../components/reactbits/LogoLoop.jsx';
 import samsung from '../assets/logos/samsung.svg';
 import lg from '../assets/logos/lg.svg';
@@ -23,14 +24,15 @@ const LOGOS = [
 export default function Campaigns() {
   return (
     <section className="campaigns" aria-labelledby="campaigns-title">
-      <h2 id="campaigns-title" className="campaigns__title serif">Campaigns I’ve contributed to</h2>
+      <h2 id="campaigns-title" className="campaigns__title serif">{campaigns.title}</h2>
+      <p className="campaigns__note">{campaigns.note}</p>
       <LogoLoop
         logos={LOGOS}
         speed={70}
         direction="left"
         logoHeight={64}
         gap={48}
-        pauseOnHover={false}
+        pauseOnHover
         draggable={false}
         fadeOut
         fadeOutWidth={0.08}

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { navigateWithTransition } from '../transition.js';
 import AccordionGallery from '../components/reactbits/AccordionGallery.jsx';
 import { projects, works } from '../content.js';
 import { asset } from '../asset.js';
@@ -27,10 +29,10 @@ const Barcode = () => (
 
 const CARD_RATIO = 1030 / 1138; // width / height of the exported cards
 const GAP = { h: 12, v: 8 };
-const RATIO = { h: 0.5, v: 0.55 };
+const RATIO = { h: 0.56, v: 0.62 };
 
 // Height that makes the open panel exactly card-shaped, so nothing on the card is cropped.
-function useGalleryHeight(ref, narrow) {
+function useGalleryHeight(ref, narrow, count) {
   const [h, setH] = useState(narrow ? 380 : 680);
   useEffect(() => {
     const el = ref.current;
@@ -38,11 +40,11 @@ function useGalleryHeight(ref, narrow) {
     const calc = () => {
       const W = el.clientWidth - parseFloat(getComputedStyle(el).paddingLeft) - parseFloat(getComputedStyle(el).paddingRight);
       if (!narrow) {
-        const usable = W - GAP.h * 3;
-        setH(Math.round((usable * RATIO.h) / CARD_RATIO));
+        const usable = W - GAP.h * (count - 1);
+        setH(Math.round(Math.min((usable * RATIO.h) / CARD_RATIO, window.innerHeight * 0.86)));
       } else {
         const openH = W / CARD_RATIO;
-        const total = openH / RATIO.v + GAP.v * 3;
+        const total = openH / RATIO.v + GAP.v * (count - 1);
         setH(Math.round(total / 1.6)); // the gallery multiplies vertical height by 1.6
       }
     };
@@ -50,7 +52,7 @@ function useGalleryHeight(ref, narrow) {
     const ro = new ResizeObserver(calc);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [ref, narrow]);
+  }, [ref, narrow, count]);
   return h;
 }
 
@@ -80,20 +82,30 @@ function useScrollIndex(ref, enabled, count) {
 export default function Works() {
   const narrow = useNarrow();
   const galleryRef = useRef(null);
-  const height = useGalleryHeight(galleryRef, narrow);
-  const scrollIndex = useScrollIndex(galleryRef, narrow, projects.length);
-  const items = projects.map(p => ({
+  const main = projects.filter(p => p.tier === 'main');
+  const more = projects.filter(p => p.tier !== 'main');
+  const height = useGalleryHeight(galleryRef, narrow, main.length);
+  const scrollIndex = useScrollIndex(galleryRef, narrow, main.length);
+  const navigate = useNavigate();
+  const items = main.map(p => ({
     image: asset(p.card),
-    label: p.name,
+    label: `${p.name}: ${p.cardTitle}`,
     alt: `${p.name}: ${p.cardTitle}`,
     link: `#/work/${p.slug}`,
+    caption: (
+      <>
+        <span className="ag-caption__tags">{p.tags}</span>
+        <span className="ag-caption__name serif">{p.name} <span aria-hidden="true">↗</span></span>
+        <span className="ag-caption__line">{p.cardTitle}</span>
+      </>
+    ),
   }));
 
   return (
     <section id="works" className="works" aria-labelledby="works-title">
       <header className="works__head">
         <div className="section-rule">
-          <h2 id="works-title" className="works__title serif">My works</h2>
+          <h2 id="works-title" className="works__title serif">{works.title}</h2>
           <span className="section-rule__line" aria-hidden="true" />
           <Barcode />
         </div>
@@ -118,6 +130,31 @@ export default function Works() {
           tilt={6}
           activeIndex={scrollIndex}
         />
+      </div>
+
+      <div className="works__more">
+        <h3 className="works__more-title serif">{works.moreTitle}</h3>
+        <p className="works__more-lines">{works.moreLines}</p>
+        <ul className="more-grid" role="list">
+          {more.map(p => (
+            <li key={p.slug}>
+              <a
+                href={`#/work/${p.slug}`}
+                className="more-card"
+                onClick={e => {
+                  e.preventDefault();
+                  navigateWithTransition(navigate, `/work/${p.slug}`, e.currentTarget);
+                }}
+              >
+                <span className="more-card__img"><img src={asset(p.card)} alt="" loading="lazy" /></span>
+                <span className="more-card__text">
+                  <span className="more-card__name serif">{p.name} <span aria-hidden="true">↗</span></span>
+                  <span className="more-card__tags">{p.tags}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

@@ -2,23 +2,44 @@
 // Facts come from Kirill's resume (Oct 2026). Nothing invented.
 
 export const hero = {
-  titleStart: 'From insight',
-  titleJoin: 'to', // kept with the rotating word so it never sits alone on a phone
-  rotating: ['interaction', 'clarity', 'impact', 'experience'],
+  label: 'Kirill Blik · Product Designer', // never animated, so the role is clear at a glance
+  titleStart: 'Making complex things',
+  titleJoin: 'feel', // kept with the rotating word so it never sits alone on a phone
+  // Each word finishes the same sentence.
+  rotating: ['intuitive', 'clear', 'simple', 'effortless'],
   lines:
-    'UX/UI & Product Designer with a graphic design background. I take products from research to a working prototype.',
+    'I combine product thinking, visual design and business understanding to turn complex problems into useful digital experiences.',
+  cta: 'Explore selected work',
 };
 
-export const about = [
-  "I'm Kirill, a UX/UI and Product Designer. I started in graphic design, and I still care about the craft: type, composition and the small details people notice without knowing why. Now I use it to design products that solve a real problem, end to end.",
-  "From April 2025 to October 2026 I worked as a graphic designer in the Graphics & Media department of KSP, a high-traffic e-commerce platform. I made campaigns, banners, branded landing pages, newsletters, Instagram visuals and TikTok videos for brands like Samsung, LG, LEGO, L'Oréal, Disney, Razer and Xiaomi.",
-  "I studied graphic design at Tiltan, hold a B.A. in Management & Digital Marketing from Western Galilee College, and completed the UX/UI & Product Design program at John Bryce. There I designed and built Leeway: research, personas, journey maps, flows, a 12-screen high-fidelity UI and a live prototype tested with 7 people.",
-  "I'm comfortable on the front-end side too. I build my own prototypes in HTML, CSS and JavaScript, and I know how ready-made React components work, so what I design can actually ship. I work in Figma, Photoshop, Illustrator and InDesign, and I use AI tools to move faster through research and prototyping.",
+export const bring = [
+  { n: '01', title: 'Think', text: 'Understand users and define the problem.' },
+  { n: '02', title: 'Design', text: 'Make ideas clear, useful and visually compelling.' },
+  { n: '03', title: 'Connect', text: 'Balance user needs with business goals.' },
 ];
 
+export const about = [
+  "I'm Kirill, a product designer with a background in graphic design, management and digital marketing.",
+  'My experience in e-commerce taught me how visual decisions connect with audiences, brands and business goals. Today, I bring that perspective into product design, combining user research, thoughtful interfaces and hands-on prototyping.',
+  'I enjoy making complicated things easier to understand, use and navigate. From the first question to the final interaction.',
+];
+export const aboutBackground =
+  'Graphic Designer at KSP · B.A. in Management & Digital Marketing · UX/UI & Product Design at John Bryce';
+
 export const works = {
-  lines: 'Two products I designed end to end, and two websites designed in Figma. Pick one to open it.',
+  title: 'Selected work',
+  years: '2025–2026',
+  lines: 'Product work where I took a real problem from research to a working prototype.',
+  moreTitle: 'Interface explorations',
+  moreLines: 'Website concepts designed in Figma: layout, type and responsive UI.',
 };
+
+export const campaigns = {
+  title: 'Campaigns I’ve contributed to',
+  note: "Selected brands I've created campaign assets for while working at KSP.",
+};
+
+export const resume = 'Kirill_Blik_Resume.pdf';
 
 export const contacts = {
   email: 'kirillblik@gmail.com',
@@ -29,29 +50,35 @@ export const projects = [
   {
     slug: 'decibuy',
     name: 'DeciBuy',
+    tier: 'main',
     card: 'v3/card-decibuy.jpg',
-    cardTitle: 'Purchase decision app',
+    cardTitle: 'Smarter decisions before checkout',
+    tags: 'Independent concept · Product design · Research & prototyping',
     about:
-      'Share a product from any store and get one verdict, Buy, Wait for payday or Not now, based on your own money situation.',
+      'A phone app that looks at a price, your spare money and your payday, and answers before you pay: Buy, Wait for payday or Not now.',
     type: 'case',
     url: 'https://jazzfoxtrot.github.io/DeciBuy/case/',
   },
   {
     slug: 'leeway',
     name: 'Leeway',
+    tier: 'main',
     card: 'v3/card-leeway.jpg',
-    cardTitle: 'Airport queue problem solution',
+    cardTitle: 'A more predictable airport experience',
+    tags: 'John Bryce capstone · UX/UI · Research & usability testing',
     about:
-      'Pre-book a time slot for the security check at Ben Gurion Airport. UX/UI capstone at John Bryce: research, a 12-screen app and a live prototype.',
+      'Pre-book a time slot for the security check at Ben Gurion Airport, and get guided until check-in is done. Research, a 12-screen app and a live prototype.',
     type: 'case',
     url: 'https://jazzfoxtrot.github.io/leeway0.1/case/index-en.html',
   },
   {
     slug: 'travel',
-    name: 'Travel Project',
+    name: 'Turkey Travel Editorial',
+    tier: 'more',
     card: 'v3/card-travel.jpg',
-    cardTitle: 'Travel Project',
-    about: 'A travel blog website about Turkey: home and blog pages, a mobile version and a small design system, designed in Figma.',
+    cardTitle: 'Web design · Responsive UI',
+    tags: 'Web design · Responsive UI · Design system',
+    about: 'A travel blog about Turkey: home and blog pages, a mobile version and a small design system, designed in Figma.',
     type: 'pages',
     pages: [
       { src: 'travel-home.jpg', label: 'Home', w: 2880, h: 11646 },
@@ -62,10 +89,12 @@ export const projects = [
   },
   {
     slug: 'photographer',
-    name: 'Photographer portfolio',
+    name: 'William Smith Photography',
+    tier: 'more',
     card: 'v3/card-photographer.jpg',
-    cardTitle: 'Photographer portfolio',
-    about: 'A one-page portfolio website for a photographer, designed in Figma.',
+    cardTitle: 'Web design · Visual design',
+    tags: 'Web design · Visual design · Concept',
+    about: 'A one-page portfolio for a wedding and commercial photographer (fictional client), designed in Figma.',
     type: 'pages',
     pages: [{ src: 'photographer-home.jpg', label: 'Home', w: 2880, h: 8198 }],
   },
