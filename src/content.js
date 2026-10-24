@@ -53,8 +53,8 @@ export const projects = [
     about: 'A travel blog website about Turkey: home and blog pages, a mobile version and a small design system, designed in Figma.',
     type: 'pages',
     pages: [
-      { src: 'travel-home.jpg', label: 'Home', w: 1440, h: 5823 },
-      { src: 'travel-blog.jpg', label: 'Blog', w: 1440, h: 3091 },
+      { src: 'travel-home.jpg', label: 'Home', w: 2880, h: 11646 },
+      { src: 'travel-blog.jpg', label: 'Blog', w: 2880, h: 6182 },
       { src: 'travel-mobile.jpg', label: 'Mobile', w: 320, h: 6277, narrow: true },
       { src: 'travel-design-system.jpg', label: 'Design system', w: 2235, h: 1800 },
     ],
@@ -66,6 +66,6 @@ export const projects = [
     cardTitle: 'Photographer portfolio',
     about: 'A one-page portfolio website for a photographer, designed in Figma.',
     type: 'pages',
-    pages: [{ src: 'photographer-home.jpg', label: 'Home', w: 1440, h: 4099 }],
+    pages: [{ src: 'photographer-home.jpg', label: 'Home', w: 2880, h: 8198 }],
   },
 ];

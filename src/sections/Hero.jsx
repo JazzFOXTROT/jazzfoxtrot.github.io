@@ -36,7 +36,9 @@ const loadImage = src =>
 // Draw what sits behind the glass (in glass coordinates) for the refraction shader.
 async function paintBehindGlass(ctx) {
   const [bridge, rock] = await Promise.all([loadImage(asset('v3/bridge.jpg')), loadImage(asset('v3/rock.jpg'))]);
-  ctx.clearRect(0, 0, GLASS.w, GLASS.h);
+  // Same input as the Figma effect: page colour + both photos behind, then the glass layer's own 20% black.
+  ctx.fillStyle = '#d5492b';
+  ctx.fillRect(0, 0, GLASS.w, GLASS.h);
   const bx = BRIDGE.x - GLASS.x;
   const by = BRIDGE.y - GLASS.y;
   const s = Math.max(BRIDGE.w / bridge.width, BRIDGE.h / bridge.height); // object-fit: cover
@@ -54,6 +56,8 @@ async function paintBehindGlass(ctx) {
     c.x * rock.width, c.y * rock.height, c.w * rock.width, c.h * rock.height,
     ROCK.x - GLASS.x, ROCK.y - GLASS.y, ROCK.w, ROCK.h
   );
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  ctx.fillRect(0, 0, GLASS.w, GLASS.h);
 }
 
 function Collage() {
@@ -121,16 +125,13 @@ function Collage() {
           touchTilt
           tilt
           tiltMax={14}
-          glare
-          glareOpacity={0.28}
+          glare={false}
           hoverScale={1.04}
-          shadow
-          shadowOpacity={0.35}
+          shadow={false}
           ariaLabel="Glass"
           front={
             <div className="glass">
               <GlassRefraction width={GLASS.w} height={GLASS.h} paintBackdrop={paintBehindGlass} pointer={pointer} />
-              <span className="glass__tint" />
             </div>
           }
         />

@@ -1,9 +1,18 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useCallback, useEffect, useRef } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { projects } from '../content.js';
 import { asset } from '../asset.js';
 import { navigateWithTransition } from '../transition.js';
 
+const COLLAPSE_AT = 240; // px of scrolling until the red curtain is fully folded
+
+/*
+ * One layout for all four projects: a fixed-height page with the red curtain on top
+ * and a scrolling area under it (an iframe for the case studies, a div for the Figma pages).
+ * Whatever scrolls inside drives --p (0 → 1), so the curtain folds into a slim bar the same way
+ * everywhere. The case studies are on the same origin (jazzfoxtrot.github.io), so their
+ * scroll and swipes can be read from inside the iframe.
+ */
 export default function Project() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -11,95 +20,154 @@ export default function Project() {
   const p = projects[index];
   const prev = projects[(index - 1 + projects.length) % projects.length];
   const next = projects[(index + 1) % projects.length];
-  const sheetRef = useRef(null);
+  const rootRef = useRef(null);
+  const scrollerRef = useRef(null);
+  const frameRef = useRef(null);
+  const goRef = useRef(null);
 
-  const goTo = target => navigateWithTransition(navigate, `/work/${target.slug}`, null);
+  const goTo = useCallback(target => navigateWithTransition(navigate, `/work/${target.slug}`, null), [navigate]);
+  const close = useCallback(() => navigate('/', { state: { scrollTo: 'works' } }), [navigate]);
+  goRef.current = { goTo, close, prev, next };
 
   useEffect(() => {
     document.title = `${p.name} · Kirill Blik`;
     return () => { document.title = 'Kirill Blik · Product Designer'; };
   }, [p.name]);
 
-  // Keyboard arrows + horizontal swipe / trackpad swipe between projects.
-  useEffect(() => {
-    const onKey = e => {
-      if (e.target.closest?.('input, textarea')) return;
-      if (e.key === 'ArrowRight') goTo(next);
-      if (e.key === 'ArrowLeft') goTo(prev);
-      if (e.key === 'Escape') navigate('/');
-    };
+  const setProgress = useCallback(y => {
+    const v = Math.min(1, Math.max(0, y / COLLAPSE_AT));
+    rootRef.current?.style.setProperty('--p', v.toFixed(3));
+  }, []);
+
+  // Swipe (touch), horizontal trackpad swipe and keyboard → previous / next project.
+  const attachGestures = useCallback(target => {
     let start = null;
-    const onDown = e => { if (e.pointerType !== 'mouse') start = { x: e.clientX, y: e.clientY }; };
-    const onUp = e => {
-      if (!start) return;
-      const dx = e.clientX - start.x;
-      const dy = e.clientY - start.y;
-      start = null;
-      if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) goTo(dx < 0 ? next : prev);
-    };
     let wheelX = 0;
     let lock = false;
+    const fire = dir => {
+      if (lock) return;
+      lock = true;
+      const g = goRef.current;
+      g.goTo(dir > 0 ? g.next : g.prev);
+      setTimeout(() => { lock = false; }, 900);
+    };
+    const onStart = e => {
+      const t = e.touches?.[0];
+      if (t) start = { x: t.clientX, y: t.clientY };
+    };
+    const onEnd = e => {
+      const t = e.changedTouches?.[0];
+      if (!start || !t) return;
+      const dx = t.clientX - start.x;
+      const dy = t.clientY - start.y;
+      start = null;
+      if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.6) fire(dx < 0 ? 1 : -1);
+    };
     const onWheel = e => {
-      if (lock || Math.abs(e.deltaX) < Math.abs(e.deltaY)) return;
+      if (Math.abs(e.deltaX) < Math.abs(e.deltaY) * 1.5) return;
       wheelX += e.deltaX;
-      if (Math.abs(wheelX) > 140) {
-        lock = true;
-        goTo(wheelX > 0 ? next : prev);
-        wheelX = 0;
-        setTimeout(() => { lock = false; }, 900);
+      if (Math.abs(wheelX) > 160) { fire(wheelX > 0 ? 1 : -1); wheelX = 0; }
+      clearTimeout(onWheel.t);
+      onWheel.t = setTimeout(() => { wheelX = 0; }, 200);
+    };
+    const onKey = e => {
+      if (e.target.closest?.('input, textarea, [contenteditable]')) return;
+      if (e.key === 'ArrowRight') fire(1);
+      if (e.key === 'ArrowLeft') fire(-1);
+      if (e.key === 'Escape') goRef.current.close();
+    };
+    target.addEventListener('touchstart', onStart, { passive: true });
+    target.addEventListener('touchend', onEnd, { passive: true });
+    target.addEventListener('wheel', onWheel, { passive: true });
+    target.addEventListener('keydown', onKey);
+    return () => {
+      target.removeEventListener('touchstart', onStart);
+      target.removeEventListener('touchend', onEnd);
+      target.removeEventListener('wheel', onWheel);
+      target.removeEventListener('keydown', onKey);
+    };
+  }, []);
+
+  // Gestures on the page itself.
+  useEffect(() => attachGestures(window), [attachGestures]);
+
+  // Scroll of the Figma pages.
+  useEffect(() => {
+    setProgress(0);
+    const el = scrollerRef.current;
+    if (!el) return undefined;
+    el.scrollTop = 0;
+    const on = () => setProgress(el.scrollTop);
+    el.addEventListener('scroll', on, { passive: true });
+    return () => el.removeEventListener('scroll', on);
+  }, [slug, setProgress]);
+
+  // Scroll + gestures inside the case-study iframe.
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return undefined;
+    let cleanup = () => {};
+    const hook = () => {
+      cleanup();
+      try {
+        const win = frame.contentWindow;
+        const doc = frame.contentDocument;
+        if (!win || !doc) return;
+        const on = () => setProgress(win.scrollY || doc.scrollingElement?.scrollTop || 0);
+        win.addEventListener('scroll', on, { passive: true });
+        const off = attachGestures(win);
+        on();
+        cleanup = () => { win.removeEventListener('scroll', on); off(); };
+      } catch {
+        // Different origin: the curtain then folds as soon as the pointer enters the case.
+        const fold = () => setProgress(COLLAPSE_AT);
+        frame.addEventListener('pointerenter', fold);
+        cleanup = () => frame.removeEventListener('pointerenter', fold);
       }
     };
-    const el = sheetRef.current;
-    window.addEventListener('keydown', onKey);
-    el.addEventListener('pointerdown', onDown);
-    el.addEventListener('pointerup', onUp);
-    el.addEventListener('wheel', onWheel, { passive: true });
-    return () => {
-      window.removeEventListener('keydown', onKey);
-      el.removeEventListener('pointerdown', onDown);
-      el.removeEventListener('pointerup', onUp);
-      el.removeEventListener('wheel', onWheel);
-    };
-  });
+    frame.addEventListener('load', hook);
+    return () => { frame.removeEventListener('load', hook); cleanup(); };
+  }, [slug, setProgress, attachGestures]);
 
   return (
-    <main className="project" ref={sheetRef} style={{ viewTransitionName: 'project-sheet' }}>
-      <header className="project__head">
-        <Link to="/" className="project__back" aria-label="Back to home">blik.</Link>
-        <div className="project__intro">
+    <main className="project" ref={rootRef} style={{ viewTransitionName: 'project-sheet' }}>
+      <header className="project__curtain">
+        <div className="project__titles">
           <h1 className="project__name serif">{p.name}</h1>
           <p className="project__about">{p.about}</p>
         </div>
-        <nav className="project__pager" aria-label="Other projects">
-          <button type="button" onClick={() => goTo(prev)} aria-label={`Previous: ${prev.name}`}>←</button>
-          <span className="project__count">{index + 1} / {projects.length}</span>
-          <button type="button" onClick={() => goTo(next)} aria-label={`Next: ${next.name}`}>→</button>
-        </nav>
+        <div className="project__tools">
+          {p.type === 'case' && (
+            <a className="project__open" href={p.url} target="_blank" rel="noreferrer">Open in a new tab ↗</a>
+          )}
+          <span className="project__count" aria-label={`Project ${index + 1} of ${projects.length}`}>{index + 1} / {projects.length}</span>
+          <button type="button" className="project__close" onClick={close} aria-label="Close and go back to My works">
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 2l14 14M16 2L2 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+          </button>
+        </div>
       </header>
 
       {p.type === 'case' ? (
-        <div className="project__frame">
-          <iframe src={p.url} title={`${p.name} case study`} loading="eager" />
-          <a className="project__open" href={p.url} target="_blank" rel="noreferrer">Open in a new tab ↗</a>
-        </div>
+        <iframe key={p.slug} ref={frameRef} className="project__frame" src={p.url} title={`${p.name} case study`} />
       ) : (
-        <div className="project__pages">
-          {p.pages.map(pg => (
-            <figure key={pg.src} className={`project__page${pg.narrow ? ' project__page--narrow' : ''}`}>
-              <figcaption>{pg.label}</figcaption>
-              <img src={asset(`projects/${pg.src}`)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
-            </figure>
-          ))}
+        <div className="project__scroller" ref={scrollerRef}>
+          <div className="project__pages">
+            {p.pages.map(pg => (
+              <figure key={pg.src} className={`project__page${pg.narrow ? ' project__page--narrow' : ''}`}>
+                <figcaption>{pg.label}</figcaption>
+                <img src={asset(`projects/${pg.src}`)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
+              </figure>
+            ))}
+          </div>
         </div>
       )}
 
-      <footer className="project__foot">
-        <button type="button" className="tilde-link serif" onClick={() => goTo(next)}>
-          <span className="tilde" aria-hidden="true">~</span>
-          <span className="tilde-link__label">Next: {next.name}</span>
-          <span className="tilde" aria-hidden="true">~</span>
-        </button>
-      </footer>
+      <button type="button" className="project__side project__side--prev" onClick={() => goTo(prev)} aria-label={`Previous project: ${prev.name}`}>
+        <svg width="14" height="24" viewBox="0 0 14 24" aria-hidden="true"><path d="M12 2L2 12l10 10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      <button type="button" className="project__side project__side--next" onClick={() => goTo(next)} aria-label={`Next project: ${next.name}`}>
+        <svg width="14" height="24" viewBox="0 0 14 24" aria-hidden="true"><path d="M2 2l10 10L2 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
     </main>
   );
 }
