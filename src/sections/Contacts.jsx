@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { contacts } from '../content.js';
-import { asset } from '../asset.js';
+import { contacts, resume } from '../content.js';
+import { asset, file } from '../asset.js';
 import Ornament from '../components/Ornament.jsx';
 
 // Static site → the form posts to FormSubmit, which forwards it to Kirill's inbox.
@@ -59,6 +59,11 @@ export default function Contacts() {
         Open to UX/UI and Product Design roles, in Israel and abroad. Saw my work and want to collaborate? Leave a message.
       </p>
 
+      <div className="contacts__cta">
+        <a className="cta-btn" href={`mailto:${contacts.email}`}>Email me</a>
+        <a className="cta-btn cta-btn--ghost" href={file(resume)} target="_blank" rel="noreferrer">Resume (PDF) ↗</a>
+      </div>
+
       <form className="contact-form" onSubmit={onSubmit}>
         <div className="contact-form__row">
           <label className="field">
@@ -91,6 +96,7 @@ export default function Contacts() {
       <ul className="contacts__list" role="list">
         <li><TildeLink href={`mailto:${contacts.email}`}>{contacts.email}</TildeLink></li>
         <li><TildeLink href={contacts.linkedin} target="_blank" rel="noreferrer">LinkedIn</TildeLink></li>
+        <li><TildeLink href={file(resume)} target="_blank" rel="noreferrer">Resume</TildeLink></li>
       </ul>
       <p className="contacts__small">© {new Date().getFullYear()} Kirill Blik</p>
       <Ornament corner="bottom-left" className="contacts__ornament" />

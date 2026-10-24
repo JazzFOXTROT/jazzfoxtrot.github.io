@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { projects } from '../content.js';
+import { orderedProjects as projects } from '../content.js';
 import { asset } from '../asset.js';
 import { navigateWithTransition } from '../transition.js';
 
@@ -40,7 +40,7 @@ export default function Project() {
   }, []);
 
   // Swipe (touch), horizontal trackpad swipe and keyboard → previous / next project.
-  const attachGestures = useCallback(target => {
+  const attachGestures = useCallback((target, { keys = true } = {}) => {
     let start = null;
     let wheelX = 0;
     let lock = false;
@@ -51,9 +51,19 @@ export default function Project() {
       g.goTo(dir > 0 ? g.next : g.prev);
       setTimeout(() => { lock = false; }, 900);
     };
+    // Don't steal swipes from things that scroll sideways themselves (carousels, wide tables, maps).
+    const scrollsSideways = el => {
+      for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+        const v = n.ownerDocument.defaultView;
+        const ox = v.getComputedStyle(n).overflowX;
+        if (n.scrollWidth > n.clientWidth + 2 && (ox === 'auto' || ox === 'scroll')) return true;
+        if (n.matches?.('[data-swipe], [draggable="true"], input, textarea, [role="slider"]')) return true;
+      }
+      return false;
+    };
     const onStart = e => {
       const t = e.touches?.[0];
-      if (t) start = { x: t.clientX, y: t.clientY };
+      start = t && !scrollsSideways(e.target) ? { x: t.clientX, y: t.clientY } : null;
     };
     const onEnd = e => {
       const t = e.changedTouches?.[0];
@@ -61,9 +71,10 @@ export default function Project() {
       const dx = t.clientX - start.x;
       const dy = t.clientY - start.y;
       start = null;
-      if (Math.abs(dx) > 80 && Math.abs(dx) > Math.abs(dy) * 1.6) fire(dx < 0 ? 1 : -1);
+      if (Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 2) fire(dx < 0 ? 1 : -1);
     };
     const onWheel = e => {
+      if (scrollsSideways(e.target)) return;
       if (Math.abs(e.deltaX) < Math.abs(e.deltaY) * 1.5) return;
       wheelX += e.deltaX;
       if (Math.abs(wheelX) > 160) { fire(wheelX > 0 ? 1 : -1); wheelX = 0; }
@@ -79,7 +90,7 @@ export default function Project() {
     target.addEventListener('touchstart', onStart, { passive: true });
     target.addEventListener('touchend', onEnd, { passive: true });
     target.addEventListener('wheel', onWheel, { passive: true });
-    target.addEventListener('keydown', onKey);
+    if (keys) target.addEventListener('keydown', onKey);
     return () => {
       target.removeEventListener('touchstart', onStart);
       target.removeEventListener('touchend', onEnd);
@@ -115,7 +126,7 @@ export default function Project() {
         if (!win || !doc) return;
         const on = () => setProgress(win.scrollY || doc.scrollingElement?.scrollTop || 0);
         win.addEventListener('scroll', on, { passive: true });
-        const off = attachGestures(win);
+        const off = attachGestures(win, { keys: false }); // arrow keys stay with the case itself
         on();
         cleanup = () => { win.removeEventListener('scroll', on); off(); };
       } catch {
@@ -155,7 +166,7 @@ export default function Project() {
             {p.pages.map(pg => (
               <figure key={pg.src} className={`project__page${pg.narrow ? ' project__page--narrow' : ''}`}>
                 <figcaption>{pg.label}</figcaption>
-                <img src={asset(`projects/${pg.src}`)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
+                <img src={asset(pg.src)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
               </figure>
             ))}
           </div>

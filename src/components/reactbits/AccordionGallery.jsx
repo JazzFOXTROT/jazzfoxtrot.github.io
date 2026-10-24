@@ -222,6 +222,7 @@ const AccordionGallery = ({
               </span>
               <span className="ag-panel__overlay" aria-hidden="true" />
             </span>
+            {item.caption ? <span className="ag-panel__caption">{item.caption}</span> : null}
             {showLabels && (
               <span className="ag-panel__label" aria-hidden="true">
                 <span className="ag-panel__bar" ref={el => (barRefs.current[i] = el)} />

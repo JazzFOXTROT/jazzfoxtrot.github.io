@@ -52,15 +52,16 @@ export function animateScroll(to, duration = 900) {
 
 const topOf = el => () => el.getBoundingClientRect().top + window.scrollY;
 
-// "About me": land on the closed card, wait a beat, then let it open by itself.
+// "About me": glide to the closed card, then ~400 ms after it stops (incl. the 220 ms
+// settle inside animateScroll) it opens by itself.
+// No extra scrolling is needed, the expansion plays in place.
 export async function openAboutMe() {
   const me = document.getElementById('me');
   if (!me) return;
   const arrived = await animateScroll(topOf(me), 900);
   if (!arrived || me.classList.contains('me--static')) return;
-  await new Promise(r => setTimeout(r, 800));
-  // ScrollExpand reaches its end state after 1.1 screen heights of scrolling.
-  await animateScroll(() => topOf(me)() + window.innerHeight * 1.15, 1600);
+  await new Promise(r => setTimeout(r, 180));
+  me.querySelector('.scroll-expand')?.dispatchEvent(new Event('se:open'));
 }
 
 export function scrollToSection(id) {

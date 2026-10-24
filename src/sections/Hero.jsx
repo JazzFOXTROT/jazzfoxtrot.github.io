@@ -2,15 +2,19 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import RotatingText from '../components/reactbits/RotatingText.jsx';
 import FlipCard from '../components/reactbits/FlipCard.jsx';
 import GlassRefraction from '../components/GlassRefraction.jsx';
-import { hero } from '../content.js';
-import { asset } from '../asset.js';
+import { hero, resume } from '../content.js';
+import { file } from '../asset.js';
+// Bundled (not /public) so the glass shader can read them even from a local file:// preview.
+import bridgeSrc from '../assets/v3/bridge.jpg';
+import rockSrc from '../assets/v3/rock.jpg';
 import Ornament from '../components/Ornament.jsx';
 import { openAboutMe, scrollToSection } from '../scroll.js';
 
 const NAV = [
+  { label: 'Selected work', href: '#works' },
   { label: 'About me', href: '#me' },
-  { label: 'My works', href: '#works' },
   { label: 'Contacts', href: '#contacts' },
+  { label: 'Resume ↗', href: 'resume' },
 ];
 
 const go = (e, href) => {
@@ -37,7 +41,7 @@ const loadImage = src =>
 
 // Draw what sits behind the glass (in glass coordinates) for the refraction shader.
 async function paintBehindGlass(ctx) {
-  const [bridge, rock] = await Promise.all([loadImage(asset('v3/bridge.jpg')), loadImage(asset('v3/rock.jpg'))]);
+  const [bridge, rock] = await Promise.all([loadImage(bridgeSrc), loadImage(rockSrc)]);
   // Same input as the Figma effect: page colour + both photos behind, then the glass layer's own 20% black.
   ctx.fillStyle = '#d5492b';
   ctx.fillRect(0, 0, GLASS.w, GLASS.h);
@@ -90,7 +94,7 @@ function Collage() {
     <div className="collage" ref={boxRef} aria-hidden="true">
       <img
         className="collage__photo"
-        src={asset('v3/bridge.jpg')}
+        src={bridgeSrc}
         alt=""
         style={{ left: pct(BRIDGE.x, BOX.w), top: pct(BRIDGE.y, BOX.h), width: pct(BRIDGE.w, BOX.w), height: pct(BRIDGE.h, BOX.h) }}
       />
@@ -99,7 +103,7 @@ function Collage() {
         style={{ left: pct(ROCK.x, BOX.w), top: pct(ROCK.y, BOX.h), width: pct(ROCK.w, BOX.w), height: pct(ROCK.h, BOX.h) }}
       >
         <img
-          src={asset('v3/rock.jpg')}
+          src={rockSrc}
           alt=""
           style={{
             width: `${100 / ROCK.crop.w}%`,
@@ -143,14 +147,16 @@ function Collage() {
 }
 
 export default function Hero() {
+  const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   return (
     <section className="hero" aria-label="Intro">
       <span className="hero__logo serif">blik.</span>
       <Ornament corner="top-right" className="hero__ornament" />
 
       <div className="hero__intro">
+        <p className="hero__label">{hero.label}</p>
         <h1 className="hero__title serif">
-          {hero.titleStart}{' '}
+          <span className="hero__start">{hero.titleStart}</span>{' '}
           <span className="hero__end">
           {hero.titleJoin}{' '}
           <RotatingText
@@ -160,6 +166,7 @@ export default function Hero() {
             staggerFrom="last"
             staggerDuration={0.025}
             rotationInterval={2600}
+            auto={!reduce}
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '-120%' }}
@@ -169,10 +176,19 @@ export default function Hero() {
           </span>
         </h1>
         <p className="hero__lines">{hero.lines}</p>
+        <a href="#works" className="hero__cta" onClick={e => go(e, '#works')}>
+          {hero.cta} <span aria-hidden="true">↓</span>
+        </a>
       </div>
 
       <nav className="hero__nav" aria-label="Main">
-        {NAV.map(n => (
+        {NAV.map(n => n.href === 'resume' ? (
+          <a key={n.href} href={file(resume)} target="_blank" rel="noreferrer" className="tilde-link serif">
+            <span className="tilde" aria-hidden="true">~</span>
+            <span className="tilde-link__label">{n.label}</span>
+            <span className="tilde" aria-hidden="true">~</span>
+          </a>
+        ) : (
           <a key={n.href} href={n.href} onClick={e => go(e, n.href)} className="tilde-link serif">
             <span className="tilde" aria-hidden="true">~</span>
             <span className="tilde-link__label">{n.label}</span>

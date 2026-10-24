@@ -127,6 +127,7 @@ const ScrollExpand = ({
     let stageH = 0;
     let running = false;
     let opened = false;
+    let openRaf = 0;
     let collapsed = false; // stayOpen: after the first full pass, the pinned scroll length is removed
 
     const measure = () => {
@@ -182,6 +183,7 @@ const ScrollExpand = ({
         measure();
         window.scrollBy(0, -(before - track.offsetHeight));
       }
+      if (openRaf) return; // the self-playing open is in charge
       target = readProgress();
       if (propsRef.current.smoothing <= 0 || reduceMotion) {
         current = target;
@@ -203,6 +205,30 @@ const ScrollExpand = ({
     current = target;
     applyProgress(current);
 
+    // Portfolio extension: open without scrolling (the "About me" link).
+    // Dispatch `new Event('se:open')` on the root; it plays the expansion on its own and
+    // keeps it open, with the pinned scroll length removed (it sits below the viewport here).
+    const onOpen = () => {
+      if (opened && current >= 0.999) return;
+      opened = true;
+      collapsed = true;
+      measure();
+      running = false;
+      if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      const from = current;
+      const dur = reduceMotion ? 0 : 1100;
+      const t0 = performance.now();
+      const ease = t => 1 - Math.pow(1 - t, 3);
+      const step = now => {
+        const t = dur ? Math.min(1, (now - t0) / dur) : 1;
+        current = target = from + (1 - from) * ease(t);
+        applyProgress(current);
+        openRaf = t < 1 ? requestAnimationFrame(step) : 0;
+      };
+      openRaf = requestAnimationFrame(step);
+    };
+    root.addEventListener('se:open', onOpen);
+
     const scroller = useWindowScroll ? window : root;
     scroller.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onResize);
@@ -211,6 +237,8 @@ const ScrollExpand = ({
 
     return () => {
       if (raf) cancelAnimationFrame(raf);
+      if (openRaf) cancelAnimationFrame(openRaf);
+      root.removeEventListener('se:open', onOpen);
       scroller.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       ro.disconnect();
