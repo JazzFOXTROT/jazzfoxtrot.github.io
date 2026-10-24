@@ -217,7 +217,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transform: translateY(calc((1 - clamp(0, calc((var(--me-p) - 0.55) * 4 - var(--i) * 0.35), 1)) * 18px));
 }
 .me__star { display: block; }
-.me__stage .me__star { position: absolute; left: 0; bottom: 0; width: 19.3%; height: auto; opacity: clamp(0, calc((var(--me-p) - 0.75) * 4), 1); }
+.me__stage .me__star { position: absolute; left: -7.36vw; bottom: -6.6vw; width: 32.36vw; height: auto; opacity: clamp(0, calc((var(--me-p) - 0.75) * 4), 1); }
 
 /* Small screens: static end state */
 .me--static {
@@ -524,3 +524,9 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* Star straddles About → What I bring (Figma V4) */
+.bring { position: relative; overflow: hidden; }
+.bring > *:not(.me__star) { position: relative; }
+.bring .me__star { position: absolute; left: -7.36vw; top: -25.76vw; width: 32.36vw; height: auto; pointer-events: none; }
+@media (max-width: 899px) { .bring .me__star { display: none; } .me--static .me__star { width: 240px; left: -48px; bottom: -48px; } }

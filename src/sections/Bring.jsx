@@ -1,8 +1,11 @@
 import { bring } from '../content.js';
+import { Star } from './MeSection.jsx';
 
 export default function Bring() {
   return (
     <section className="bring" aria-labelledby="bring-title">
+      {/* Continues the star from the About panel above (Kirill's Figma V4 edit) */}
+      <Star />
       <h2 id="bring-title" className="bring__title">What I bring to the table</h2>
       <ol className="bring__list" role="list">
         {bring.map(b => (
