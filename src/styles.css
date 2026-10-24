@@ -67,25 +67,41 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .tilde-link:hover, .tilde-link:focus-visible { font-size: var(--tl-size-hover, var(--t-h2)); }
 .tilde-link:hover .tilde, .tilde-link:focus-visible .tilde { max-width: 0.6em; opacity: 1; }
 
-/* ---------- Engraved corner ornament (297 × 296 at 1440) ---------- */
-.ornament {
-  position: absolute;
-  width: 297px;
-  height: 296px;
-  pointer-events: none;
-  scale: var(--o-scale, 1);
-}
+/* ---------- Engraved corner ornament (Figma groups 3588 / 3587) ---------- */
+.ornament { position: absolute; pointer-events: none; scale: var(--o-scale, 1); }
 .ornament img { position: absolute; width: 39px; height: 277px; max-width: none; }
 .ornament__h-box { position: absolute; width: 277px; height: 39px; display: flex; align-items: center; justify-content: center; }
 .ornament__h-box img { position: static; flex: none; }
-.ornament--top-right { transform-origin: top right; }
-.ornament--top-right .ornament__v { left: 258px; top: 19px; transform: scaleY(-1); }
+.ornament--top-right { width: 304px; height: 306px; transform-origin: top right; }
+.ornament--top-right .ornament__v { left: 265px; top: 29px; transform: rotate(180deg); }
 .ornament--top-right .ornament__h-box { left: 0; top: 0; }
 .ornament--top-right .ornament__h { transform: rotate(90deg) scaleY(-1); }
-.ornament--bottom-left { transform-origin: bottom left; }
-.ornament--bottom-left .ornament__v { left: 0; top: 0; transform: rotate(180deg) scaleY(-1); }
-.ornament--bottom-left .ornament__h-box { left: 20px; top: 257px; }
+.ornament--bottom-left { width: 307px; height: 306px; transform-origin: bottom left; }
+.ornament--bottom-left .ornament__v { left: 0; top: 0; }
+.ornament--bottom-left .ornament__h-box { left: 30px; top: 267px; }
 .ornament--bottom-left .ornament__h { transform: rotate(-90deg) scaleY(-1); }
+
+/* ---------- Back to top ---------- */
+.to-top {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  opacity: 0;
+  translate: 0 12px;
+  pointer-events: none;
+  transition: opacity 0.3s, translate 0.3s var(--ease-out), transform 0.2s var(--ease-out);
+}
+.to-top[data-shown] { opacity: 0.85; translate: 0 0; pointer-events: auto; }
+.to-top:hover { opacity: 1; transform: translateY(-2px); }
+.to-top:active { transform: scale(0.94); }
 
 /* ---------- Heading with a rule (My works / Contacts) ---------- */
 .section-rule { display: flex; align-items: flex-end; gap: var(--s-16); width: 100%; }
@@ -101,7 +117,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   overflow: hidden;
 }
 .hero__logo { font-size: var(--t-h2); line-height: 1; color: var(--ink); }
-.hero__ornament { top: 35px; right: 60px; --o-scale: 1; }
+.hero__ornament { top: 35px; right: 59px; --o-scale: 1; }
 .hero__intro { position: relative; z-index: 2; margin-top: var(--s-64); pointer-events: none; }
 .hero__title {
   margin: 0;
@@ -287,7 +303,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .contacts__list { list-style: none; margin: 0; padding: 48px 0 0; display: flex; flex-direction: column; align-items: flex-end; }
 .contacts .tilde-link { --tl-size: clamp(32px, 3.34vw, 48px); --tl-size-hover: clamp(40px, 4.45vw, 64px); }
 .contacts__small { margin: var(--s-16) 0 0; font-size: 14px; color: #141210; opacity: 0.7; }
-.contacts__ornament { left: 70px; bottom: 60px; --o-scale: 1; }
+.contacts__ornament { left: 60px; bottom: 60px; --o-scale: 1; }
 
 /* ---------- Project page ---------- */
 /* --p (0 → 1) comes from whatever scrolls inside: the red curtain folds into a slim bar. */

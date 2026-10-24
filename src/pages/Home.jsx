@@ -5,6 +5,7 @@ import MeSection from '../sections/MeSection.jsx';
 import Campaigns from '../sections/Campaigns.jsx';
 import Works from '../sections/Works.jsx';
 import Contacts from '../sections/Contacts.jsx';
+import ToTop from '../components/ToTop.jsx';
 
 export default function Home() {
   const { state } = useLocation();
@@ -30,6 +31,7 @@ export default function Home() {
       <Campaigns />
       <Works />
       <Contacts />
+      <ToTop />
     </main>
   );
 }

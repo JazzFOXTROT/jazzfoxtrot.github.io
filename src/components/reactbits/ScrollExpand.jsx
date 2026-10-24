@@ -25,6 +25,7 @@ const ScrollExpand = ({
   mediaColor = '#000',
   stageChildren = null,
   onProgress,
+  stayOpen = false, // portfolio extension: once fully opened, it stays open
   startRadius = 24,
   endRadius = 0,
   mediaZoom = 1.35,
@@ -64,7 +65,8 @@ const ScrollExpand = ({
     smoothing,
     overlayScrim,
     useWindowScroll,
-    enabled
+    enabled,
+    stayOpen
   };
 
   const applyProgress = useCallback(p => {
@@ -136,13 +138,16 @@ const ScrollExpand = ({
       stage.style.setProperty('--se-title-size', `${clamp(w * 0.075, 20, 84)}px`);
     };
 
+    let opened = false;
     const readProgress = () => {
       const c = propsRef.current;
-      if (!c.enabled) return 1;
+      if (!c.enabled || opened) return 1;
       const span = stageH * Math.max(0.01, c.scrollDistance);
       if (c.useWindowScroll) {
         const top = track.getBoundingClientRect().top;
-        return clamp(-top / span, 0, 1);
+        const v = clamp(-top / span, 0, 1);
+        if (c.stayOpen && v >= 0.999) opened = true;
+        return v;
       }
       return clamp(root.scrollTop / span, 0, 1);
     };

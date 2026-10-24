@@ -80,6 +80,7 @@ export default function MeSection() {
         holdDistance={0.6}
         smoothing={0.08}
         onProgress={onProgress}
+        stayOpen
         stageChildren={
           <div className="me__stage">
             <Star />
