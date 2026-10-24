@@ -1,0 +1,103 @@
+{
+  "groups": [
+    {
+      "id": "main",
+      "title": "Selected work",
+      "lines": "Product work where I took a real problem from research to a working prototype.",
+      "layout": "accordion"
+    },
+    {
+      "id": "more",
+      "title": "Interface explorations",
+      "lines": "Website concepts designed in Figma: layout, type and responsive UI.",
+      "layout": "grid"
+    }
+  ],
+  "projects": [
+    {
+      "slug": "decibuy",
+      "name": "DeciBuy",
+      "card": "v3/card-decibuy.jpg",
+      "cardTitle": "Smarter decisions before checkout",
+      "tags": "Independent concept · Product design · Research & prototyping",
+      "about": "A phone app that looks at a price, your spare money and your payday, and answers before you pay: Buy, Wait for payday or Not now.",
+      "type": "case",
+      "url": "https://jazzfoxtrot.github.io/DeciBuy/case/",
+      "group": "main",
+      "hidden": false
+    },
+    {
+      "slug": "leeway",
+      "name": "Leeway",
+      "card": "v3/card-leeway.jpg",
+      "cardTitle": "A more predictable airport experience",
+      "tags": "John Bryce capstone · UX/UI · Research & usability testing",
+      "about": "Pre-book a time slot for the security check at Ben Gurion Airport, and get guided until check-in is done. Research, a 12-screen app and a live prototype.",
+      "type": "case",
+      "url": "https://jazzfoxtrot.github.io/leeway0.1/case/index-en.html",
+      "group": "main",
+      "hidden": false
+    },
+    {
+      "slug": "travel",
+      "name": "Turkey Travel Editorial",
+      "card": "v3/card-travel.jpg",
+      "cardTitle": "Web design · Responsive UI",
+      "tags": "Web design · Responsive UI · Design system",
+      "about": "A travel blog about Turkey: home and blog pages, a mobile version and a small design system, designed in Figma.",
+      "type": "pages",
+      "group": "more",
+      "hidden": false,
+      "pages": [
+        {
+          "src": "projects/travel-home.jpg",
+          "label": "Home",
+          "w": 2880,
+          "h": 11646,
+          "narrow": false
+        },
+        {
+          "src": "projects/travel-blog.jpg",
+          "label": "Blog",
+          "w": 2880,
+          "h": 6182,
+          "narrow": false
+        },
+        {
+          "src": "projects/travel-mobile.jpg",
+          "label": "Mobile",
+          "w": 320,
+          "h": 6277,
+          "narrow": true
+        },
+        {
+          "src": "projects/travel-design-system.jpg",
+          "label": "Design system",
+          "w": 2235,
+          "h": 1800,
+          "narrow": false
+        }
+      ]
+    },
+    {
+      "slug": "photographer",
+      "name": "William Smith Photography",
+      "card": "v3/card-photographer.jpg",
+      "cardTitle": "Web design · Visual design",
+      "tags": "Web design · Visual design · Concept",
+      "about": "A one-page portfolio for a wedding and commercial photographer (fictional client), designed in Figma.",
+      "type": "pages",
+      "group": "more",
+      "hidden": false,
+      "pages": [
+        {
+          "src": "projects/photographer-home.jpg",
+          "label": "Home",
+          "w": 2880,
+          "h": 8198,
+          "narrow": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { projects } from '../content.js';
+import { orderedProjects as projects } from '../content.js';
 import { asset } from '../asset.js';
 import { navigateWithTransition } from '../transition.js';
 
@@ -166,7 +166,7 @@ export default function Project() {
             {p.pages.map(pg => (
               <figure key={pg.src} className={`project__page${pg.narrow ? ' project__page--narrow' : ''}`}>
                 <figcaption>{pg.label}</figcaption>
-                <img src={asset(`projects/${pg.src}`)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
+                <img src={asset(pg.src)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
               </figure>
             ))}
           </div>

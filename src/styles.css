@@ -530,3 +530,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .bring > *:not(.me__star) { position: relative; }
 .bring .me__star { position: absolute; left: -7.36vw; top: -25.76vw; width: 32.36vw; height: auto; pointer-events: none; }
 @media (max-width: 899px) { .bring .me__star { display: none; } .me--static .me__star { width: 240px; left: -48px; bottom: -48px; } }
+
+/* An extra row set to "big cards" sits inside .works__more, which already has the gutter. */
+.works__more .works__gallery { padding: 0; }

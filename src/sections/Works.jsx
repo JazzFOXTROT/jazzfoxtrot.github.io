@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { navigateWithTransition } from '../transition.js';
 import AccordionGallery from '../components/reactbits/AccordionGallery.jsx';
-import { projects, works } from '../content.js';
+import { groups, projects } from '../content.js';
 import { asset } from '../asset.js';
 
 const useNarrow = () => {
@@ -79,15 +79,13 @@ function useScrollIndex(ref, enabled, count) {
   return index;
 }
 
-export default function Works() {
+// Big hover/scroll accordion (the main case studies).
+function AccordionBlock({ list }) {
   const narrow = useNarrow();
   const galleryRef = useRef(null);
-  const main = projects.filter(p => p.tier === 'main');
-  const more = projects.filter(p => p.tier !== 'main');
-  const height = useGalleryHeight(galleryRef, narrow, main.length);
-  const scrollIndex = useScrollIndex(galleryRef, narrow, main.length);
-  const navigate = useNavigate();
-  const items = main.map(p => ({
+  const height = useGalleryHeight(galleryRef, narrow, list.length);
+  const scrollIndex = useScrollIndex(galleryRef, narrow, list.length);
+  const items = list.map(p => ({
     image: asset(p.card),
     label: `${p.name}: ${p.cardTitle}`,
     alt: `${p.name}: ${p.cardTitle}`,
@@ -100,62 +98,87 @@ export default function Works() {
       </>
     ),
   }));
+  return (
+    <div className="works__gallery" ref={galleryRef}>
+      <AccordionGallery
+        key={narrow ? 'v' : 'h'}
+        items={items}
+        defaultIndex={0}
+        orientation={narrow ? 'vertical' : 'horizontal'}
+        trigger={narrow ? 'click' : 'hover'}
+        height={height}
+        gap={narrow ? GAP.v : GAP.h}
+        radius={16}
+        expandRatio={narrow ? RATIO.v : RATIO.h}
+        overlayColor="#132d37"
+        accentColor="#ffffff"
+        showLabels={false}
+        grayscale
+        tilt={6}
+        activeIndex={scrollIndex}
+      />
+    </div>
+  );
+}
+
+// Smaller two-column cards (interface explorations and any extra rows).
+function GridBlock({ list }) {
+  const navigate = useNavigate();
+  return (
+    <ul className="more-grid" role="list">
+      {list.map(p => (
+        <li key={p.slug}>
+          <a
+            href={`#/work/${p.slug}`}
+            className="more-card"
+            onClick={e => {
+              e.preventDefault();
+              navigateWithTransition(navigate, `/work/${p.slug}`, e.currentTarget);
+            }}
+          >
+            <span className="more-card__img"><img src={asset(p.card)} alt="" loading="lazy" /></span>
+            <span className="more-card__text">
+              <span className="more-card__name serif">{p.name} <span aria-hidden="true">↗</span></span>
+              <span className="more-card__tags">{p.tags}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+const Block = ({ group, list }) =>
+  group.layout === 'accordion' && list.length > 1 ? <AccordionBlock list={list} /> : <GridBlock list={list} />;
+
+export default function Works() {
+  const [first, ...rest] = groups;
+  const of = g => projects.filter(p => p.group === g.id);
 
   return (
     <section id="works" className="works" aria-labelledby="works-title">
       <header className="works__head">
         <div className="section-rule">
-          <h2 id="works-title" className="works__title serif">{works.title}</h2>
+          <h2 id="works-title" className="works__title serif">{first?.title}</h2>
           <span className="section-rule__line" aria-hidden="true" />
           <Barcode />
         </div>
-        <p className="works__lines">{works.lines}</p>
+        {first?.lines && <p className="works__lines">{first.lines}</p>}
       </header>
 
-      <div className="works__gallery" ref={galleryRef}>
-        <AccordionGallery
-          key={narrow ? 'v' : 'h'}
-          items={items}
-          defaultIndex={0}
-          orientation={narrow ? 'vertical' : 'horizontal'}
-          trigger={narrow ? 'click' : 'hover'}
-          height={height}
-          gap={narrow ? GAP.v : GAP.h}
-          radius={16}
-          expandRatio={narrow ? RATIO.v : RATIO.h}
-          overlayColor="#132d37"
-          accentColor="#ffffff"
-          showLabels={false}
-          grayscale
-          tilt={6}
-          activeIndex={scrollIndex}
-        />
-      </div>
+      {first && of(first).length > 0 && <Block group={first} list={of(first)} />}
 
-      <div className="works__more">
-        <h3 className="works__more-title serif">{works.moreTitle}</h3>
-        <p className="works__more-lines">{works.moreLines}</p>
-        <ul className="more-grid" role="list">
-          {more.map(p => (
-            <li key={p.slug}>
-              <a
-                href={`#/work/${p.slug}`}
-                className="more-card"
-                onClick={e => {
-                  e.preventDefault();
-                  navigateWithTransition(navigate, `/work/${p.slug}`, e.currentTarget);
-                }}
-              >
-                <span className="more-card__img"><img src={asset(p.card)} alt="" loading="lazy" /></span>
-                <span className="more-card__text">
-                  <span className="more-card__name serif">{p.name} <span aria-hidden="true">↗</span></span>
-                  <span className="more-card__tags">{p.tags}</span>
-                </span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {rest.map(g => {
+        const list = of(g);
+        if (!list.length) return null;
+        return (
+          <div className="works__more" key={g.id}>
+            <h3 className="works__more-title serif">{g.title}</h3>
+            {g.lines && <p className="works__more-lines">{g.lines}</p>}
+            <Block group={g} list={list} />
+          </div>
+        );
+      })}
     </section>
   );
 }
