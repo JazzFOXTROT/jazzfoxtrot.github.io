@@ -1,8 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import ShinyText from '../components/reactbits/ShinyText.jsx';
-import Cubes from '../components/reactbits/Cubes.jsx';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import RotatingText from '../components/reactbits/RotatingText.jsx';
+import FlipCard from '../components/reactbits/FlipCard.jsx';
+import GlassRefraction from '../components/GlassRefraction.jsx';
 import { hero } from '../content.js';
 import { asset } from '../asset.js';
+import Ornament from '../components/Ornament.jsx';
 
 const NAV = [
   { label: 'About me', href: '#me' },
@@ -10,164 +12,172 @@ const NAV = [
   { label: 'Contacts', href: '#contacts' },
 ];
 
-// Must match the <Cubes> props below: the logo is placed on this grid.
-const GRID = 11;
-const GAP = 0.06;
-
 const go = (e, href) => {
   e.preventDefault();
   document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
 };
 
-// Puts "blik." on the cube grid: the "b" sits in the first full cell,
-// its bowl touching the cell's right wall, baseline on a grid line.
-function useLogoOnGrid(mediaRef) {
-  const [style, setStyle] = useState(null);
+// Collage geometry in Figma units (box 628 × 604, from x 732 / y 420 of the 1440 frame).
+const BOX = { w: 628, h: 604 };
+const BRIDGE = { x: 326, y: 0, w: 302, h: 437 };
+const ROCK = { x: 0, y: 227, w: 302, h: 377, crop: { x: 0.0993, y: 0.1985, w: 0.8017, h: 0.8007 } };
+const GLASS = { x: 142, y: 65, w: 335, h: 451 };
+const pct = (v, of) => `${(v / of) * 100}%`;
 
-  useLayoutEffect(() => {
-    const media = mediaRef.current;
-    if (!media) return undefined;
-    let cancelled = false;
+const loadImage = src =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
 
-    const place = () => {
-      const W = media.clientWidth;
-      const H = media.clientHeight;
-      const S = Math.max(W, H); // .hero__cubes is a square of the long side, centred
-      const pitch = S / (GRID + 0.9);
-      const cube = (1 - GAP) * pitch;
-      const ox = (W - S) / 2;
-      const oy = (H - S) / 2;
-      const mid = (GRID - 1) / 2;
-      const cellLeft = c => ox + S / 2 + (c - mid) * pitch - cube / 2;
-      const cellTop = r => oy + S / 2 + (r - mid) * pitch - cube / 2;
-      let col = 0;
-      while (cellLeft(col) < 0 && col < GRID) col++;
-      let row = 0;
-      while (cellTop(row) < 0 && row < GRID) row++;
-      row += 1; // leave room for the ascender in the cell above
-
-      const ctx = document.createElement('canvas').getContext('2d');
-      ctx.font = '100px "Instrument Serif"';
-      const m = ctx.measureText('b');
-      const inkL = -m.actualBoundingBoxLeft; // usually ~0
-      const inkR = m.actualBoundingBoxRight;
-      const inkW = inkR - inkL || 50;
-      const size = (cube * 0.86 * 100) / inkW; // "b" fills the cell width
-      const k = size / 100;
-      const right = cellLeft(col) + cube; // bowl touches this wall
-      const left = right - inkR * k;
-      const baseline = cellTop(row) + cube; // sits on the grid line
-      // With line-height: 1 the baseline is this far below the box top.
-      const fa = (m.fontBoundingBoxAscent ?? 90) * k;
-      const fd = (m.fontBoundingBoxDescent ?? 25) * k;
-      const top = baseline - ((size - (fa + fd)) / 2 + fa);
-      if (!cancelled) setStyle({ left: `${left}px`, top: `${top}px`, fontSize: `${size}px` });
-    };
-
-    const ro = new ResizeObserver(place);
-    ro.observe(media);
-    document.fonts?.ready.then(place);
-    place();
-    return () => {
-      cancelled = true;
-      ro.disconnect();
-    };
-  }, [mediaRef]);
-
-  return style;
+// Draw what sits behind the glass (in glass coordinates) for the refraction shader.
+async function paintBehindGlass(ctx) {
+  const [bridge, rock] = await Promise.all([loadImage(asset('v3/bridge.jpg')), loadImage(asset('v3/rock.jpg'))]);
+  ctx.clearRect(0, 0, GLASS.w, GLASS.h);
+  const bx = BRIDGE.x - GLASS.x;
+  const by = BRIDGE.y - GLASS.y;
+  const s = Math.max(BRIDGE.w / bridge.width, BRIDGE.h / bridge.height); // object-fit: cover
+  const dw = bridge.width * s;
+  const dh = bridge.height * s;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(bx, by, BRIDGE.w, BRIDGE.h);
+  ctx.clip();
+  ctx.drawImage(bridge, bx + (BRIDGE.w - dw) / 2, by + (BRIDGE.h - dh) / 2, dw, dh);
+  ctx.restore();
+  const c = ROCK.crop;
+  ctx.drawImage(
+    rock,
+    c.x * rock.width, c.y * rock.height, c.w * rock.width, c.h * rock.height,
+    ROCK.x - GLASS.x, ROCK.y - GLASS.y, ROCK.w, ROCK.h
+  );
 }
 
-// Frosted-glass photo: blurred by default, sharp under the cursor.
-function useReveal(mediaRef) {
-  useEffect(() => {
-    const el = mediaRef.current;
-    if (!el) return undefined;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const s = { x: 0, y: 0, tx: 0, ty: 0, r: 0, tr: 0, raf: 0 };
-    const MAX = () => Math.max(140, Math.min(el.clientWidth, el.clientHeight) * 0.26);
+function Collage() {
+  const boxRef = useRef(null);
+  const [k, setK] = useState(1);
+  const [pointer, setPointer] = useState(null);
+  const raf = useRef(0);
 
-    const tick = () => {
-      s.raf = 0;
-      const k = reduce ? 1 : 0.16;
-      s.x += (s.tx - s.x) * k;
-      s.y += (s.ty - s.y) * k;
-      s.r += (s.tr - s.r) * (reduce ? 1 : 0.1);
-      el.style.setProperty('--mx', `${s.x.toFixed(1)}px`);
-      el.style.setProperty('--my', `${s.y.toFixed(1)}px`);
-      el.style.setProperty('--mr', `${s.r.toFixed(1)}px`);
-      if (Math.abs(s.tx - s.x) + Math.abs(s.ty - s.y) + Math.abs(s.tr - s.r) > 0.5) s.raf = requestAnimationFrame(tick);
-    };
-    const wake = () => { if (!s.raf) s.raf = requestAnimationFrame(tick); };
-    const move = e => {
-      const r = el.getBoundingClientRect();
-      s.tx = e.clientX - r.left;
-      s.ty = e.clientY - r.top;
-      if (s.r < 1) { s.x = s.tx; s.y = s.ty; }
-      s.tr = MAX();
-      wake();
-    };
-    const leave = () => { s.tr = 0; wake(); };
-    el.addEventListener('pointermove', move);
-    el.addEventListener('pointerdown', move);
-    el.addEventListener('pointerleave', leave);
-    el.addEventListener('pointercancel', leave);
-    return () => {
-      cancelAnimationFrame(s.raf);
-      el.removeEventListener('pointermove', move);
-      el.removeEventListener('pointerdown', move);
-      el.removeEventListener('pointerleave', leave);
-      el.removeEventListener('pointercancel', leave);
-    };
-  }, [mediaRef]);
+  useEffect(() => {
+    const el = boxRef.current;
+    const ro = new ResizeObserver(() => setK(el.clientWidth / BOX.w || 1));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const onMove = useCallback(e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const next = { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height };
+    cancelAnimationFrame(raf.current);
+    raf.current = requestAnimationFrame(() => setPointer(next));
+  }, []);
+  const onLeave = useCallback(() => {
+    cancelAnimationFrame(raf.current);
+    setPointer(null);
+  }, []);
+
+  return (
+    <div className="collage" ref={boxRef} aria-hidden="true">
+      <img
+        className="collage__photo"
+        src={asset('v3/bridge.jpg')}
+        alt=""
+        style={{ left: pct(BRIDGE.x, BOX.w), top: pct(BRIDGE.y, BOX.h), width: pct(BRIDGE.w, BOX.w), height: pct(BRIDGE.h, BOX.h) }}
+      />
+      <div
+        className="collage__photo collage__photo--crop"
+        style={{ left: pct(ROCK.x, BOX.w), top: pct(ROCK.y, BOX.h), width: pct(ROCK.w, BOX.w), height: pct(ROCK.h, BOX.h) }}
+      >
+        <img
+          src={asset('v3/rock.jpg')}
+          alt=""
+          style={{
+            width: `${100 / ROCK.crop.w}%`,
+            height: `${100 / ROCK.crop.h}%`,
+            left: `${(-ROCK.crop.x / ROCK.crop.w) * 100}%`,
+            top: `${(-ROCK.crop.y / ROCK.crop.h) * 100}%`,
+          }}
+        />
+      </div>
+      <div
+        className="collage__glass"
+        style={{ left: pct(GLASS.x, BOX.w), top: pct(GLASS.y, BOX.h) }}
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        onPointerCancel={onLeave}
+        onPointerUp={e => e.pointerType === 'touch' && onLeave()}
+      >
+        <FlipCard
+          width={Math.round(GLASS.w * k)}
+          height={Math.round(GLASS.h * k)}
+          radius={0}
+          background="transparent"
+          flipOnClick={false}
+          draggable={false}
+          touchTilt
+          tilt
+          tiltMax={14}
+          glare
+          glareOpacity={0.28}
+          hoverScale={1.04}
+          shadow
+          shadowOpacity={0.35}
+          ariaLabel="Glass"
+          front={
+            <div className="glass">
+              <GlassRefraction width={GLASS.w} height={GLASS.h} paintBackdrop={paintBehindGlass} pointer={pointer} />
+              <span className="glass__tint" />
+            </div>
+          }
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function Hero() {
-  const mediaRef = useRef(null);
-  const logo = useLogoOnGrid(mediaRef);
-  useReveal(mediaRef);
-  const photo = asset('img/hero-photo.jpg');
-
   return (
     <section className="hero" aria-label="Intro">
-      <div className="hero__media" ref={mediaRef}>
-        <img className="hero__photo hero__photo--glass" src={photo} alt="" aria-hidden="true" />
-        <img className="hero__photo hero__photo--sharp" src={photo} alt="Kirill framing the camera with his hands on a bridge at night" />
-        <div className="hero__cubes">
-          <Cubes
-            gridSize={GRID}
-            gap={GAP}
-            faceColor="#120F17"
-            faceOpacity={0}
-            edgeColor="#bbb598"
-            edgeWidth={1}
-            shading={0.5}
-            maxAngle={55}
-            radius={3.2}
-            speed={0.9}
-            rippleColor="#C8102E"
-            rippleSpeed={1.2}
-          />
-        </div>
-        <span className="hero__logo serif" style={logo ?? undefined}>blik.</span>
-      </div>
+      <span className="hero__logo serif">blik.</span>
+      <Ornament corner="top-right" className="hero__ornament" />
 
-      <div className="hero__text">
+      <div className="hero__intro">
         <h1 className="hero__title serif">
-          {hero.title}{' '}
-          <ShinyText text={hero.shiny} color="#8e0e0c" shineColor="#f3d6b8" speed={2.6} delay={1.2} angle={110} shineWidth={34} glow={0.25} />.
+          {hero.titleStart}{' '}
+          <span className="hero__end">
+          <RotatingText
+            texts={hero.rotating}
+            mainClassName="hero__rotate"
+            splitLevelClassName="hero__rotate-word"
+            staggerFrom="last"
+            staggerDuration={0.025}
+            rotationInterval={2600}
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '-120%' }}
+            transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+          />
+          <span className="hero__dot">.</span>
+          </span>
         </h1>
         <p className="hero__lines">{hero.lines}</p>
-
-        <nav className="hero__nav" aria-label="Main">
-          {NAV.map(n => (
-            <a key={n.href} href={n.href} onClick={e => go(e, n.href)} className="tilde-link serif">
-              <span className="tilde" aria-hidden="true">~</span>
-              <span className="tilde-link__label">{n.label}</span>
-              <span className="tilde" aria-hidden="true">~</span>
-            </a>
-          ))}
-        </nav>
       </div>
+
+      <nav className="hero__nav" aria-label="Main">
+        {NAV.map(n => (
+          <a key={n.href} href={n.href} onClick={e => go(e, n.href)} className="tilde-link serif">
+            <span className="tilde" aria-hidden="true">~</span>
+            <span className="tilde-link__label">{n.label}</span>
+            <span className="tilde" aria-hidden="true">~</span>
+          </a>
+        ))}
+      </nav>
+
+      <Collage />
     </section>
   );
 }

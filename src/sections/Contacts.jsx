@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { contacts } from '../content.js';
+import { asset } from '../asset.js';
+import Ornament from '../components/Ornament.jsx';
 
 // Static site → the form posts to FormSubmit, which forwards it to Kirill's inbox.
 // The very first submission triggers a one-time activation email from FormSubmit.
@@ -48,7 +50,11 @@ export default function Contacts() {
 
   return (
     <footer id="contacts" className="contacts" aria-labelledby="contacts-title">
-      <h2 id="contacts-title" className="contacts__title serif">Contacts</h2>
+      <div className="section-rule section-rule--end">
+        <img className="contacts__dots" src={asset('v3/dots.png')} alt="" aria-hidden="true" />
+        <span className="section-rule__line" aria-hidden="true" />
+        <h2 id="contacts-title" className="contacts__title serif">Contacts</h2>
+      </div>
       <p className="contacts__lead">
         Open to UX/UI and Product Design roles, in Israel and abroad. Saw my work and want to collaborate? Leave a message.
       </p>
@@ -60,13 +66,13 @@ export default function Contacts() {
             <input name="name" type="text" autoComplete="name" required />
           </label>
           <label className="field">
-            <span className="field__label">Email</span>
+            <span className="field__label">Your mail for contact</span>
             <input name="email" type="email" autoComplete="email" required />
           </label>
         </div>
         <label className="field">
           <span className="field__label">Message</span>
-          <textarea name="message" rows={5} required placeholder="A project, a role, an idea…" />
+          <textarea name="message" rows={5} required />
         </label>
         <input type="text" name="_honey" tabIndex={-1} autoComplete="off" className="visually-hidden" aria-hidden="true" />
         <div className="contact-form__foot">
@@ -87,6 +93,7 @@ export default function Contacts() {
         <li><TildeLink href={contacts.linkedin} target="_blank" rel="noreferrer">LinkedIn</TildeLink></li>
       </ul>
       <p className="contacts__small">© {new Date().getFullYear()} Kirill Blik</p>
+      <Ornament corner="bottom-left" className="contacts__ornament" />
     </footer>
   );
 }

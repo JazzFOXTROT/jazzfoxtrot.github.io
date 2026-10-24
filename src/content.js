@@ -2,8 +2,8 @@
 // Facts come from Kirill's resume (Oct 2026). Nothing invented.
 
 export const hero = {
-  title: 'Design what',
-  shiny: 'matters',
+  titleStart: 'From insight to',
+  rotating: ['interaction', 'clarity', 'impact', 'experience'],
   lines:
     'UX/UI & Product Designer with a graphic design background. I take products from research to a working prototype.',
 };
@@ -28,7 +28,7 @@ export const projects = [
   {
     slug: 'decibuy',
     name: 'DeciBuy',
-    card: 'card-decibuy.png',
+    card: 'v3/card-decibuy.jpg',
     cardTitle: 'Purchase decision app',
     about:
       'Share a product from any store and get one verdict, Buy, Wait for payday or Not now, based on your own money situation.',
@@ -38,7 +38,7 @@ export const projects = [
   {
     slug: 'leeway',
     name: 'Leeway',
-    card: 'card-leeway.png',
+    card: 'v3/card-leeway.jpg',
     cardTitle: 'Airport queue problem solution',
     about:
       'Pre-book a time slot for the security check at Ben Gurion Airport. UX/UI capstone at John Bryce: research, a 12-screen app and a live prototype.',
@@ -48,7 +48,7 @@ export const projects = [
   {
     slug: 'travel',
     name: 'Travel Project',
-    card: 'card-travel.png',
+    card: 'v3/card-travel.jpg',
     cardTitle: 'Travel Project',
     about: 'A travel blog website about Turkey: home and blog pages, a mobile version and a small design system, designed in Figma.',
     type: 'pages',
@@ -62,7 +62,7 @@ export const projects = [
   {
     slug: 'photographer',
     name: 'Photographer portfolio',
-    card: 'card-photographer.png',
+    card: 'v3/card-photographer.jpg',
     cardTitle: 'Photographer portfolio',
     about: 'A one-page portfolio website for a photographer, designed in Figma.',
     type: 'pages',

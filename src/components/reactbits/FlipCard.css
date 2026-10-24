@@ -1,0 +1,56 @@
+.flip-card {
+  position: relative;
+  width: var(--fc-w);
+  height: var(--fc-h);
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+  user-select: none;
+}
+.flip-card:focus-visible .flip-card__rotor { outline: 2px solid currentColor; outline-offset: 4px; border-radius: var(--fc-radius); }
+.flip-card[data-draggable] { cursor: grab; }
+.flip-card[data-dragging] { cursor: grabbing; }
+.flip-card[data-disabled] { opacity: 0.6; }
+.flip-card__shadow {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -14px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--fc-shadow);
+  filter: blur(18px);
+  opacity: var(--fc-shadow-o);
+  pointer-events: none;
+}
+.flip-card__rotor {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.flip-card__face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: var(--fc-radius);
+  background: var(--fc-bg);
+  color: var(--fc-ink);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card[data-axis='y'] .flip-card__face--back { transform: rotateY(180deg); }
+.flip-card[data-axis='x'] .flip-card__face--back { transform: rotateX(180deg); }
+.flip-card[data-fade] .flip-card__face { transition: opacity 0.3s; }
+.flip-card[data-fade='front'] .flip-card__face--back,
+.flip-card[data-fade='back'] .flip-card__face--front { opacity: 0; }
+.flip-card[data-fade] .flip-card__face--back { transform: none; }
+.flip-card__glare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--fc-gx, 50%) var(--fc-gy, 50%), rgba(255, 255, 255, var(--fc-glare)) 0%, rgba(255, 255, 255, 0) 60%);
+  opacity: var(--fc-sheen, 0);
+  mix-blend-mode: screen;
+}
