@@ -4,6 +4,7 @@ import { navigateWithTransition } from '../transition.js';
 import AccordionGallery from '../components/reactbits/AccordionGallery.jsx';
 import { groups, projects } from '../content.js';
 import { asset } from '../asset.js';
+import Arrow from '../components/Arrow.jsx';
 
 const useNarrow = () => {
   const q = '(max-width: 899px)';
@@ -93,7 +94,7 @@ function AccordionBlock({ list }) {
     caption: (
       <>
         <span className="ag-caption__tags">{p.tags}</span>
-        <span className="ag-caption__name serif">{p.name} <span aria-hidden="true">↗</span></span>
+        <span className="ag-caption__name serif">{p.name} <Arrow /></span>
         <span className="ag-caption__line">{p.cardTitle}</span>
       </>
     ),
@@ -138,7 +139,7 @@ function GridBlock({ list }) {
           >
             <span className="more-card__img"><img src={asset(p.card)} alt="" loading="lazy" /></span>
             <span className="more-card__text">
-              <span className="more-card__name serif">{p.name} <span aria-hidden="true">↗</span></span>
+              <span className="more-card__name serif">{p.name} <Arrow /></span>
               <span className="more-card__tags">{p.tags}</span>
             </span>
           </a>

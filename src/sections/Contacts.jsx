@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { contacts, resume } from '../content.js';
 import { asset, file } from '../asset.js';
 import Ornament from '../components/Ornament.jsx';
+import Arrow from '../components/Arrow.jsx';
 
 // Static site → the form posts to FormSubmit, which forwards it to Kirill's inbox.
 // The very first submission triggers a one-time activation email from FormSubmit.
@@ -61,7 +62,7 @@ export default function Contacts() {
 
       <div className="contacts__cta">
         <a className="cta-btn" href={`mailto:${contacts.email}`}>Email me</a>
-        <a className="cta-btn cta-btn--ghost" href={file(resume)} target="_blank" rel="noreferrer">Resume (PDF) ↗</a>
+        <a className="cta-btn cta-btn--ghost" href={file(resume)} target="_blank" rel="noreferrer">Resume (PDF) <Arrow /></a>
       </div>
 
       <form className="contact-form" onSubmit={onSubmit}>

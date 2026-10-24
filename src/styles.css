@@ -418,6 +418,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .to-top { right: auto; left: 16px; bottom: 16px; } /* keeps clear of the right-aligned Send button */
   .contacts__ornament { --o-scale: 0.42; left: 12px; bottom: 24px; }
   .project__curtain { padding-inline: 16px; }
+  /* Long names wrap (balanced: "Turkey Travel / Editorial") instead of running under the count and ✕. */
+  .project__titles { flex: 1; }
+  .project__name { white-space: normal; text-wrap: balance; }
+  /* Only the ✕ sits beside the name; the "3 / 4" counter tucks under it and fades as the curtain folds. */
+  .project__curtain { gap: 12px; }
+  .project__tools { position: relative; }
+  .project__count { position: absolute; top: 100%; right: 0; margin-top: 8px; white-space: nowrap; opacity: calc(0.7 - var(--p) * 1.4); }
   .project__open { display: none; }
   .project__side { width: 28px; height: 52px; }
   .project__page figcaption { padding-inline: 16px; }
@@ -529,7 +536,17 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .bring { position: relative; overflow: hidden; }
 .bring > *:not(.me__star) { position: relative; }
 .bring .me__star { position: absolute; left: -7.36vw; top: -25.76vw; width: 32.36vw; height: auto; pointer-events: none; }
-@media (max-width: 899px) { .bring .me__star { display: none; } .me--static .me__star { width: 240px; left: -48px; bottom: -48px; } }
+@media (max-width: 899px) {
+  .bring .me__star { display: none; }
+  /* Whole star, below the text, its left part tucked behind the screen edge. */
+  .me--static { padding-bottom: 236px; }
+  .me--static .me__star { width: 180px; left: -36px; bottom: 32px; }
+}
 
 /* An extra row set to "big cards" sits inside .works__more, which already has the gutter. */
 .works__more .works__gallery { padding: 0; }
+
+/* SVG ↗ (never an emoji). Sized from the text around it, sits on the x-height. */
+.arrow-ne { display: inline-block; width: 0.56em; height: 0.56em; margin-left: 0.08em; vertical-align: 0.08em; overflow: visible; }
+.serif .arrow-ne, .serif.arrow-ne { width: 0.5em; height: 0.5em; vertical-align: 0.12em; }
+.cta-btn .arrow-ne { margin-left: 0.4em; vertical-align: 0; }

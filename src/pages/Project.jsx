@@ -3,6 +3,35 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { orderedProjects as projects } from '../content.js';
 import { asset } from '../asset.js';
 import { navigateWithTransition } from '../transition.js';
+import Arrow from '../components/Arrow.jsx';
+
+// Smaller copies made at build time (scripts/responsive-images.mjs): foo.jpg → foo@720.jpg, foo@1440.jpg.
+// Not in the local file:// preview build, which has no such step.
+const RESPONSIVE = import.meta.env.BASE_URL !== './';
+const srcSetOf = pg => {
+  if (!RESPONSIVE || !pg.w) return undefined;
+  const at = w => asset(pg.src.replace(/(\.[a-z]+)$/i, `@${w}$1`));
+  const list = [720, 1440].filter(w => pg.w > w).map(w => `${at(w)} ${w}w`);
+  return list.length ? [...list, `${asset(pg.src)} ${pg.w}w`].join(', ') : undefined;
+};
+
+// Warm up the neighbours so switching projects doesn't start from zero.
+function prefetch(project) {
+  if (!project || typeof document === 'undefined') return;
+  const href = project.type === 'case' ? project.url : (() => {
+    const pg = project.pages?.[0];
+    if (!pg) return null;
+    const wide = window.innerWidth * (window.devicePixelRatio || 1);
+    const w = [720, 1440].find(x => RESPONSIVE && pg.w > x && x >= Math.min(wide, pg.w));
+    return asset(w ? pg.src.replace(/(\.[a-z]+)$/i, `@${w}$1`) : pg.src);
+  })();
+  if (!href || document.head.querySelector(`link[data-prefetch="${href}"]`)) return;
+  const link = document.createElement('link');
+  link.rel = 'prefetch';
+  link.href = href;
+  link.dataset.prefetch = href;
+  document.head.appendChild(link);
+}
 
 const COLLAPSE_AT = 240; // px of scrolling until the red curtain is fully folded
 
@@ -29,6 +58,12 @@ export default function Project() {
   const close = useCallback(() => navigate('/', { state: { scrollTo: 'works' } }), [navigate]);
   goRef.current = { goTo, close, prev, next };
 
+  // Once this project is on screen, quietly fetch the next and previous ones.
+  useEffect(() => {
+    const t = setTimeout(() => { prefetch(next); prefetch(prev); }, 1200);
+    return () => clearTimeout(t);
+  }, [next, prev]);
+
   useEffect(() => {
     document.title = `${p.name} · Kirill Blik`;
     return () => { document.title = 'Kirill Blik · Product Designer'; };
@@ -39,9 +74,10 @@ export default function Project() {
     rootRef.current?.style.setProperty('--p', v.toFixed(3));
   }, []);
 
-  // Swipe (touch), horizontal trackpad swipe and keyboard → previous / next project.
+  // Horizontal trackpad swipe and keyboard → previous / next project (desktop).
+  // No touch swipe on phones: case studies have their own swipeable carousels (DeciBuy's cards),
+  // so on phones projects switch with the side arrows.
   const attachGestures = useCallback((target, { keys = true } = {}) => {
-    let start = null;
     let wheelX = 0;
     let lock = false;
     const fire = dir => {
@@ -61,18 +97,6 @@ export default function Project() {
       }
       return false;
     };
-    const onStart = e => {
-      const t = e.touches?.[0];
-      start = t && !scrollsSideways(e.target) ? { x: t.clientX, y: t.clientY } : null;
-    };
-    const onEnd = e => {
-      const t = e.changedTouches?.[0];
-      if (!start || !t) return;
-      const dx = t.clientX - start.x;
-      const dy = t.clientY - start.y;
-      start = null;
-      if (Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 2) fire(dx < 0 ? 1 : -1);
-    };
     const onWheel = e => {
       if (scrollsSideways(e.target)) return;
       if (Math.abs(e.deltaX) < Math.abs(e.deltaY) * 1.5) return;
@@ -87,13 +111,9 @@ export default function Project() {
       if (e.key === 'ArrowLeft') fire(-1);
       if (e.key === 'Escape') goRef.current.close();
     };
-    target.addEventListener('touchstart', onStart, { passive: true });
-    target.addEventListener('touchend', onEnd, { passive: true });
     target.addEventListener('wheel', onWheel, { passive: true });
     if (keys) target.addEventListener('keydown', onKey);
     return () => {
-      target.removeEventListener('touchstart', onStart);
-      target.removeEventListener('touchend', onEnd);
       target.removeEventListener('wheel', onWheel);
       target.removeEventListener('keydown', onKey);
     };
@@ -149,7 +169,7 @@ export default function Project() {
         </div>
         <div className="project__tools">
           {p.type === 'case' && (
-            <a className="project__open" href={p.url} target="_blank" rel="noreferrer">Open in a new tab ↗</a>
+            <a className="project__open" href={p.url} target="_blank" rel="noreferrer">Open in a new tab <Arrow /></a>
           )}
           <span className="project__count" aria-label={`Project ${index + 1} of ${projects.length}`}>{index + 1} / {projects.length}</span>
           <button type="button" className="project__close" onClick={close} aria-label="Close and go back to My works">
@@ -163,10 +183,20 @@ export default function Project() {
       ) : (
         <div className="project__scroller" ref={scrollerRef}>
           <div className="project__pages">
-            {p.pages.map(pg => (
+            {p.pages.map((pg, i) => (
               <figure key={pg.src} className={`project__page${pg.narrow ? ' project__page--narrow' : ''}`}>
                 <figcaption>{pg.label}</figcaption>
-                <img src={asset(pg.src)} alt={`${p.name}, ${pg.label} page design`} width={pg.w} height={pg.h} loading="lazy" />
+                <img
+                  src={asset(pg.src)}
+                  srcSet={srcSetOf(pg)}
+                  sizes={pg.narrow ? '390px' : '100vw'}
+                  alt={`${p.name}, ${pg.label} page design`}
+                  width={pg.w}
+                  height={pg.h}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                />
               </figure>
             ))}
           </div>

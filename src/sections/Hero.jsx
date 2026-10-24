@@ -9,12 +9,13 @@ import bridgeSrc from '../assets/v3/bridge.jpg';
 import rockSrc from '../assets/v3/rock.jpg';
 import Ornament from '../components/Ornament.jsx';
 import { openAboutMe, scrollToSection } from '../scroll.js';
+import Arrow from '../components/Arrow.jsx';
 
 const NAV = [
   { label: 'Selected work', href: '#works' },
   { label: 'About me', href: '#me' },
   { label: 'Contacts', href: '#contacts' },
-  { label: 'Resume ↗', href: 'resume' },
+  { label: 'Resume', href: 'resume' },
 ];
 
 const go = (e, href) => {
@@ -185,7 +186,7 @@ export default function Hero() {
         {NAV.map(n => n.href === 'resume' ? (
           <a key={n.href} href={file(resume)} target="_blank" rel="noreferrer" className="tilde-link serif">
             <span className="tilde" aria-hidden="true">~</span>
-            <span className="tilde-link__label">{n.label}</span>
+            <span className="tilde-link__label">{n.label} <Arrow /></span>
             <span className="tilde" aria-hidden="true">~</span>
           </a>
         ) : (
