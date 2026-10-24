@@ -63,6 +63,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transform: translateY(-0.04em);
   transition: max-width 0.45s var(--ease-out), opacity 0.3s;
 }
+.hero__nav .tilde-link { pointer-events: auto; }
 .tilde-link:hover, .tilde-link:focus-visible { font-size: var(--tl-size-hover, var(--t-h2)); }
 .tilde-link:hover .tilde, .tilde-link:focus-visible .tilde { max-width: 0.6em; opacity: 1; }
 
@@ -124,6 +125,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .hero__nav {
   position: relative;
   z-index: 2;
+  pointer-events: none; /* the box spans the row; only the links take the pointer (the glass sits under it) */
   margin-top: auto;
   padding-top: var(--s-40);
   display: flex;
@@ -230,10 +232,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .works__mark { flex: none; width: clamp(56px, 6.67vw, 96px); height: auto; margin-bottom: 0.25em; font-size: var(--t-h2); }
 .works__lines { margin: var(--s-16) 0 0; max-width: 706px; color: var(--paper); font-size: var(--t-lead); line-height: 1.4; }
 .works__gallery { padding: 0 var(--gutter); }
-/* cards are ~0.9 aspect: keep most of each card visible and leave room for the parallax drift */
-.works__gallery .ag-panel__media { width: calc(var(--ag-media-size) * 0.9); }
-.works__gallery .ag-panel__media img { object-position: 50% 40%; }
-.works__gallery .accordion-gallery--vertical .ag-panel__media { width: 100%; height: calc(var(--ag-media-size) * 0.9); }
+/* The open panel is exactly card-sized (height comes from Works.jsx), so the whole card,
+   logo and caption included, is visible; closed panels show a slice. */
+.works__gallery .ag-panel__media { width: calc(var(--ag-media-size) / 1.22); }
+.works__gallery .accordion-gallery--vertical .ag-panel__media { width: 100%; height: calc(var(--ag-media-size) / 1.22); }
 
 /* ---------- Contacts (right side) ---------- */
 .contacts {

@@ -5,6 +5,7 @@ import GlassRefraction from '../components/GlassRefraction.jsx';
 import { hero } from '../content.js';
 import { asset } from '../asset.js';
 import Ornament from '../components/Ornament.jsx';
+import { openAboutMe, scrollToSection } from '../scroll.js';
 
 const NAV = [
   { label: 'About me', href: '#me' },
@@ -14,7 +15,8 @@ const NAV = [
 
 const go = (e, href) => {
   e.preventDefault();
-  document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+  if (href === '#me') openAboutMe();
+  else scrollToSection(href.slice(1));
 };
 
 // Collage geometry in Figma units (box 628 × 604, from x 732 / y 420 of the 1440 frame).

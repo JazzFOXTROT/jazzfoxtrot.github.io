@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AccordionGallery from '../components/reactbits/AccordionGallery.jsx';
 import { projects, works } from '../content.js';
 import { asset } from '../asset.js';
@@ -25,8 +25,39 @@ const Barcode = () => (
   </svg>
 );
 
+const CARD_RATIO = 1030 / 1138; // width / height of the exported cards
+const GAP = { h: 12, v: 8 };
+const RATIO = { h: 0.5, v: 0.55 };
+
+// Height that makes the open panel exactly card-shaped, so nothing on the card is cropped.
+function useGalleryHeight(ref, narrow) {
+  const [h, setH] = useState(narrow ? 380 : 680);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    const calc = () => {
+      const W = el.clientWidth - parseFloat(getComputedStyle(el).paddingLeft) - parseFloat(getComputedStyle(el).paddingRight);
+      if (!narrow) {
+        const usable = W - GAP.h * 3;
+        setH(Math.round((usable * RATIO.h) / CARD_RATIO));
+      } else {
+        const openH = W / CARD_RATIO;
+        const total = openH / RATIO.v + GAP.v * 3;
+        setH(Math.round(total / 1.6)); // the gallery multiplies vertical height by 1.6
+      }
+    };
+    calc();
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref, narrow]);
+  return h;
+}
+
 export default function Works() {
   const narrow = useNarrow();
+  const galleryRef = useRef(null);
+  const height = useGalleryHeight(galleryRef, narrow);
   const items = projects.map(p => ({
     image: asset(p.card),
     label: p.name,
@@ -45,17 +76,17 @@ export default function Works() {
         <p className="works__lines">{works.lines}</p>
       </header>
 
-      <div className="works__gallery">
+      <div className="works__gallery" ref={galleryRef}>
         <AccordionGallery
           key={narrow ? 'v' : 'h'}
           items={items}
           defaultIndex={0}
           orientation={narrow ? 'vertical' : 'horizontal'}
           trigger={narrow ? 'click' : 'hover'}
-          height={narrow ? 380 : 680}
-          gap={narrow ? 8 : 12}
+          height={height}
+          gap={narrow ? GAP.v : GAP.h}
           radius={16}
-          expandRatio={narrow ? 0.55 : 0.5}
+          expandRatio={narrow ? RATIO.v : RATIO.h}
           overlayColor="#132d37"
           accentColor="#ffffff"
           showLabels={false}
