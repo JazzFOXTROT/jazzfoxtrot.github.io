@@ -8,13 +8,19 @@ import disney from '../assets/logos/disney.svg';
 import mattel from '../assets/logos/mattel.svg';
 import razer from '../assets/logos/razer.svg';
 import xiaomi from '../assets/logos/xiaomi.svg';
+import sony from '../assets/logos/sony.svg';
+import philips from '../assets/logos/philips.svg';
+import gucci from '../assets/logos/gucci.svg';
 
 // Heights follow the Figma frame (logos sit on a ~45px line, Disney/Mattel are taller marks).
 const LOGOS = [
   { src: samsung, alt: 'Samsung', width: 293, height: 45 },
+  { src: sony, alt: 'Sony', width: 188, height: 33 },
   { src: lg, alt: 'LG', width: 144, height: 63 },
+  { src: philips, alt: 'Philips', width: 71, height: 92 },
   { src: lego, alt: 'LEGO', width: 153, height: 73 },
   { src: loreal, alt: "L'Oréal", width: 251, height: 46 },
+  { src: gucci, alt: 'Gucci', width: 211, height: 33 },
   { src: disney, alt: 'Disney', width: 216, height: 90 },
   { src: mattel, alt: 'Mattel', width: 99, height: 99 },
   { src: razer, alt: 'Razer', width: 217, height: 35 },

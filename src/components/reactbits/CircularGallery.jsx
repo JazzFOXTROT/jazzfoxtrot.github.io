@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import './CircularGallery.css';
 
-// React Bits CircularGallery (WebGL2 version), as sent by Kirill. Unchanged apart from
-// the default font: the site passes its own font, so no Google Fonts request is made.
+// React Bits CircularGallery (WebGL2 version), as sent by Kirill. Changes: no default demo items,
+// bundled site fonts are awaited instead of Google Fonts, vertical wheel is left to the page.
 const DEFAULT_FONT = 'bold 30px Figtree';
 const DEFAULT_FONT_URL = 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap';
 const SEGMENTS_X = 32;
@@ -907,7 +907,10 @@ const CircularGallery = ({
 
     const onWheel = event => {
       const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? view.height : 1;
-      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
+      // Portfolio change: the gallery sits inside a long page, so a vertical wheel scrolls the page;
+      // only a horizontal wheel / trackpad swipe moves the gallery.
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY)) return;
+      const delta = event.deltaX;
       if (!delta) return;
       event.preventDefault();
       state.target += delta * unit * (settingsRef.current.scrollSpeed / 2);
