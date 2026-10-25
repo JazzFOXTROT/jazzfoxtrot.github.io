@@ -21,7 +21,7 @@ export const commercial = [
   {
     id: 'campaign',
     title: "Campaign Design",
-    lines: "Seasonal campaigns and brand store pages, from the key visual to every banner format.",
+    lines: "Created campaign visuals using brand-provided assets, developing the layout, typography, and visual hierarchy.",
     items: [
       { image: "commercial/campaign/barbie.webp", text: "Barbie" },
       { image: "commercial/campaign/hot-wheels.webp", text: "Hot Wheels" },
