@@ -5,10 +5,10 @@ import { prepareImage, CARD } from './images.js';
 /*
  * Private editor for the "Selected work" section.
  * Anyone can open this page, but changes are saved as a commit to the GitHub repo, so only
- * a token with write access to JazzFOXTROT/portfolio (Kirill's) can change anything.
+ * a token with write access to JazzFOXTROT/jazzfoxtrot.github.io (Kirill's) can change anything.
  */
 
-const SITE = import.meta.env.BASE_URL; // /portfolio/
+const SITE = import.meta.env.BASE_URL; // /
 const TOKEN_KEY = 'blik-editor-token';
 const NEW_TOKEN_URL = 'https://github.com/settings/personal-access-tokens/new';
 
@@ -184,7 +184,7 @@ function WorkForm({ initial, isNew, groups, takenSlugs, srcOf, addUpload, onSave
     if (!w.name.trim()) return setError('Нужно название.');
     if (isNew && takenSlugs.has(slug)) return setError(`Адрес «${slug}» уже занят другой работой. Поменяй адрес.`);
     if (!w.card) return setError('Нужна картинка карточки.');
-    if (w.type === 'case' && !/^https?:\/\//.test(w.url || '')) return setError('Нужна ссылка на кейс, начиная с https://');
+    if (w.type === 'case' && !/^(https?:\/\/|\/)/.test(w.url || '')) return setError('Нужна ссылка на кейс: /DeciBuy/case/ или https://…');
     if (w.type === 'pages' && !w.pages.some(p => p.src)) return setError('Добавь хотя бы одну страницу с картинкой.');
     const out = { ...w, slug };
     if (out.type === 'case') delete out.pages;
@@ -213,7 +213,7 @@ function WorkForm({ initial, isNew, groups, takenSlugs, srcOf, addUpload, onSave
               ) : (
                 <input id="w-slug" value={w.slug} readOnly title="Адрес существующей работы не меняется, чтобы старые ссылки не сломались" />
               )}
-              <small className="ed-muted">…/portfolio/#/work/{slug}</small>
+              <small className="ed-muted">blik.design/#/work/{slug}</small>
             </label>
           </div>
 
@@ -259,8 +259,8 @@ function WorkForm({ initial, isNew, groups, takenSlugs, srcOf, addUpload, onSave
           {w.type === 'case' ? (
             <label className="ed-field">
               <span>Ссылка на кейс</span>
-              <input id="w-url" type="url" value={w.url || ''} onChange={e => set({ url: e.target.value })} placeholder="https://jazzfoxtrot.github.io/…" />
-              <small className="ed-muted">Открывается внутри сайта под красной шторкой. Кейсы на jazzfoxtrot.github.io работают лучше всего.</small>
+              <input id="w-url" type="url" value={w.url || ''} onChange={e => set({ url: e.target.value })} placeholder="/DeciBuy/case/ or https://…" />
+              <small className="ed-muted">Открывается внутри сайта под красной шторкой. Кейсы на blik.design (например /DeciBuy/case/) работают лучше всего.</small>
             </label>
           ) : (
             <fieldset className="ed-pages">

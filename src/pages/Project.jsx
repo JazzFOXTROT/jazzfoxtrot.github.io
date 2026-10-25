@@ -39,7 +39,7 @@ const COLLAPSE_AT = 240; // px of scrolling until the red curtain is fully folde
  * One layout for all four projects: a fixed-height page with the red curtain on top
  * and a scrolling area under it (an iframe for the case studies, a div for the Figma pages).
  * Whatever scrolls inside drives --p (0 → 1), so the curtain folds into a slim bar the same way
- * everywhere. The case studies are on the same origin (jazzfoxtrot.github.io), so their
+ * everywhere. The case studies are on the same origin (blik.design: the DeciBuy and leeway0.1 project sites are served under the user site's custom domain), so their
  * scroll and swipes can be read from inside the iframe.
  */
 export default function Project() {

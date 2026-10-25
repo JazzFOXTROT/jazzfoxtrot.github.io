@@ -2,11 +2,11 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// GitHub Pages serves the site from /portfolio/.
-// Two pages: the site itself and the private works editor at /portfolio/admin/.
+// Served from the root of blik.design (user site JazzFOXTROT/jazzfoxtrot.github.io, custom domain).
+// Two pages: the site itself and the private works editor at /admin/.
 export default defineConfig({
   plugins: [react()],
-  base: '/portfolio/',
+  base: '/',
   build: {
     rollupOptions: {
       input: {

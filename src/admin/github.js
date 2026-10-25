@@ -1,7 +1,7 @@
 // Tiny GitHub REST client for the private editor.
 // Everything runs in Kirill's browser with his own token; nothing is stored anywhere else.
 
-export const REPO = { owner: 'JazzFOXTROT', repo: 'portfolio', branch: 'main' };
+export const REPO = { owner: 'JazzFOXTROT', repo: 'jazzfoxtrot.github.io', branch: 'main' };
 export const DATA_PATH = 'src/data/works.json';
 export const UPLOAD_DIR = 'public/assets/'; // card/page paths in works.json are relative to this
 

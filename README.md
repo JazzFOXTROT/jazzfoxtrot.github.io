@@ -1,7 +1,7 @@
 # Kirill Blik — portfolio
 
 Personal portfolio site. React + Vite, deployed to GitHub Pages:
-https://jazzfoxtrot.github.io/portfolio/
+https://blik.design/
 
 ## Run locally
 

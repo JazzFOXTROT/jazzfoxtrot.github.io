@@ -22,7 +22,7 @@
       "tags": "Independent concept · Product design · Research & prototyping",
       "about": "A phone app that looks at a price, your spare money and your payday, and answers before you pay: Buy, Wait for payday or Not now.",
       "type": "case",
-      "url": "https://jazzfoxtrot.github.io/DeciBuy/case/",
+      "url": "/DeciBuy/case/",
       "group": "main",
       "hidden": false
     },
@@ -34,7 +34,7 @@
       "tags": "John Bryce capstone · UX/UI · Research & usability testing",
       "about": "Pre-book a time slot for the security check at Ben Gurion Airport, and get guided until check-in is done. Research, a 12-screen app and a live prototype.",
       "type": "case",
-      "url": "https://jazzfoxtrot.github.io/leeway0.1/case/index-en.html",
+      "url": "/leeway0.1/case/index-en.html",
       "group": "main",
       "hidden": false
     },
