@@ -33,7 +33,7 @@ export default function Campaigns() {
         logoHeight={64}
         gap={48}
         pauseOnHover
-        draggable={false}
+        draggable
         fadeOut
         fadeOutWidth={0.08}
         renderItem={item => (

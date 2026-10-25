@@ -239,7 +239,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* ---------- Campaigns ---------- */
 .campaigns { background: var(--teal); padding: var(--s-24) 0 var(--s-40); text-align: center; --logo-k: 0.9; }
 .campaigns__title { margin: 0 0 var(--s-16); color: var(--bg); font-size: clamp(32px, 3.33vw, 48px); line-height: 1.3; }
-.campaigns .logoloop { cursor: default; }
 .campaigns .logoloop__content { pointer-events: none; }
 
 /* ---------- My works ---------- */

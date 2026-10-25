@@ -1,0 +1,66 @@
+.circular-gallery {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+.circular-gallery[data-pointer] { cursor: pointer; }
+.circular-gallery[data-dragging] { cursor: grabbing; }
+.circular-gallery-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.circular-gallery-labels { position: absolute; inset: 0; pointer-events: none; }
+.circular-gallery-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  line-height: 1.2;
+  will-change: transform, opacity;
+}
+.circular-gallery-caption {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  max-width: min(560px, 86%);
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+}
+.circular-gallery-caption-text { margin: 0; line-height: 1.4; }
+.circular-gallery-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.circular-gallery-close[data-visible] { opacity: 1; transform: none; pointer-events: auto; }
+.circular-gallery-close:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.circular-gallery-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+  list-style: none;
+}
+@media (prefers-reduced-motion: reduce) { .circular-gallery-close { transition: none; } }
