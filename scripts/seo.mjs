@@ -201,7 +201,6 @@ const urls = [
   { loc: `${SITE}/`, priority: '1.0' },
   ...projects.map(p => ({ loc: `${SITE}/work/${p.slug}/`, priority: '0.8' })),
   ...projects.filter(caseUrl).map(p => ({ loc: caseUrl(p), priority: '0.8' })),
-  { loc: `${SITE}/${resume}`, priority: '0.5' },
 ];
 await writeFile(
   join(DIST, 'sitemap.xml'),
@@ -219,6 +218,8 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /archive/
+# The resume PDF has a phone number: reachable from the site, kept out of search results.
+Disallow: /${resume}
 
 Sitemap: ${SITE}/sitemap.xml
 `,
@@ -249,7 +250,6 @@ ${commercial.map(cat => `- ${cat.title}: ${cat.lines} (${cat.items.map(it => it.
 
 - Email: ${contacts.email}
 - LinkedIn: ${contacts.linkedin}
-- Resume (PDF): ${SITE}/${resume}
 `,
 );
 
