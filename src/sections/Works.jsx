@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Commercial from './Commercial.jsx';
 import { navigateWithTransition } from '../transition.js';
+import { workHref } from '../routes.js';
 import AccordionGallery from '../components/reactbits/AccordionGallery.jsx';
 import { groups, projects } from '../content.js';
 import { asset } from '../asset.js';
@@ -87,11 +88,13 @@ function AccordionBlock({ list }) {
   const galleryRef = useRef(null);
   const height = useGalleryHeight(galleryRef, narrow, list.length);
   const scrollIndex = useScrollIndex(galleryRef, narrow, list.length);
+  const navigate = useNavigate();
   const items = list.map(p => ({
     image: asset(p.card),
     label: `${p.name}: ${p.cardTitle}`,
     alt: `${p.name}: ${p.cardTitle}`,
-    link: `#/work/${p.slug}`,
+    link: workHref(p.slug),
+    slug: p.slug,
     caption: (
       <>
         <span className="ag-caption__tags">{p.tags}</span>
@@ -105,6 +108,7 @@ function AccordionBlock({ list }) {
       <AccordionGallery
         key={narrow ? 'v' : 'h'}
         items={items}
+        onOpen={(item, el) => navigateWithTransition(navigate, `/work/${item.slug}/`, el)}
         defaultIndex={0}
         orientation={narrow ? 'vertical' : 'horizontal'}
         trigger={narrow ? 'click' : 'hover'}
@@ -131,11 +135,11 @@ function GridBlock({ list }) {
       {list.map(p => (
         <li key={p.slug}>
           <a
-            href={`#/work/${p.slug}`}
+            href={workHref(p.slug)}
             className="more-card"
             onClick={e => {
               e.preventDefault();
-              navigateWithTransition(navigate, `/work/${p.slug}`, e.currentTarget);
+              navigateWithTransition(navigate, `/work/${p.slug}/`, e.currentTarget);
             }}
           >
             <span className="more-card__img"><img src={asset(p.card)} alt="" loading="lazy" /></span>

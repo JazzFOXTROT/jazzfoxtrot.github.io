@@ -33,7 +33,8 @@ const AccordionGallery = ({
   showLabels = true,
   grayscale = true,
   className = '',
-  activeIndex // portfolio extension: drive the open panel from outside (mobile: by scroll)
+  activeIndex, // portfolio extension: drive the open panel from outside (mobile: by scroll)
+  onOpen // portfolio extension: (item, element) when the already-open panel is clicked; lets the app route in-page
 }) => {
   const rootRef = useRef(null);
   const panelRefs = useRef([]);
@@ -169,6 +170,11 @@ const AccordionGallery = ({
     if (i !== active) {
       e.preventDefault();
       setActive(i);
+      return;
+    }
+    if (onOpen && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+      e.preventDefault();
+      onOpen(items[i], e.currentTarget);
     }
   };
 

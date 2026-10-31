@@ -54,7 +54,7 @@ export default function Project() {
   const frameRef = useRef(null);
   const goRef = useRef(null);
 
-  const goTo = useCallback(target => navigateWithTransition(navigate, `/work/${target.slug}`, null), [navigate]);
+  const goTo = useCallback(target => navigateWithTransition(navigate, `/work/${target.slug}/`, null), [navigate]);
   const close = useCallback(() => navigate('/', { state: { scrollTo: 'works' } }), [navigate]);
   goRef.current = { goTo, close, prev, next };
 

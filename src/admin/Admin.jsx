@@ -213,7 +213,7 @@ function WorkForm({ initial, isNew, groups, takenSlugs, srcOf, addUpload, onSave
               ) : (
                 <input id="w-slug" value={w.slug} readOnly title="Адрес существующей работы не меняется, чтобы старые ссылки не сломались" />
               )}
-              <small className="ed-muted">blik.design/#/work/{slug}</small>
+              <small className="ed-muted">blik.design/work/{slug}/</small>
             </label>
           </div>
 
