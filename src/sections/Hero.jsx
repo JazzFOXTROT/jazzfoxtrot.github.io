@@ -96,7 +96,7 @@ function Collage() {
       <img
         className="collage__photo"
         src={bridgeSrc}
-        alt=""
+        alt="Kirill Blik on a bridge at night"
         style={{ left: pct(BRIDGE.x, BOX.w), top: pct(BRIDGE.y, BOX.h), width: pct(BRIDGE.w, BOX.w), height: pct(BRIDGE.h, BOX.h) }}
       />
       <div
@@ -105,7 +105,7 @@ function Collage() {
       >
         <img
           src={rockSrc}
-          alt=""
+          alt="Kirill Blik sitting on a rock by the sea"
           style={{
             width: `${100 / ROCK.crop.w}%`,
             height: `${100 / ROCK.crop.h}%`,

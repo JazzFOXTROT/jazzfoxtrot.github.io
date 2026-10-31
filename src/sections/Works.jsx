@@ -142,7 +142,7 @@ function GridBlock({ list }) {
               navigateWithTransition(navigate, `/work/${p.slug}/`, e.currentTarget);
             }}
           >
-            <span className="more-card__img"><img src={asset(p.card)} alt="" loading="lazy" /></span>
+            <span className="more-card__img"><img src={asset(p.card)} alt={`${p.name}: ${p.cardTitle}`} loading="lazy" /></span>
             <span className="more-card__text">
               <span className="more-card__name serif">{p.name} <Arrow /></span>
               <span className="more-card__tags">{p.tags}</span>
