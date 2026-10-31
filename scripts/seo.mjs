@@ -139,7 +139,7 @@ const workText = (p, i) => {
 
 const template = await readFile(join(DIST, 'index.html'), 'utf8');
 
-const head = ({ title, desc, url, image, imageAlt, ld, type = 'website', noindex = false }) => `
+const head = ({ title, desc, url, image, imageW, imageH, imageAlt, ld, type = 'website', noindex = false }) => `
     <title>${esc(title)}</title>
     <meta name="description" content="${esc(desc)}" />
     <meta name="author" content="${NAME}" />
@@ -150,6 +150,10 @@ const head = ({ title, desc, url, image, imageAlt, ld, type = 'website', noindex
     <meta property="og:description" content="${esc(desc)}" />
     <meta property="og:url" content="${url}" />
     <meta property="og:image" content="${image}" />
+    <meta property="og:image:secure_url" content="${image}" />
+    <meta property="og:image:type" content="${/\.png$/i.test(image) ? 'image/png' : /\.webp$/i.test(image) ? 'image/webp' : 'image/jpeg'}" />
+    ${imageW ? `<meta property="og:image:width" content="${imageW}" />
+    <meta property="og:image:height" content="${imageH}" />` : ''}
     <meta property="og:image:alt" content="${esc(imageAlt)}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${esc(title)}" />
@@ -173,6 +177,8 @@ const homeMeta = {
   desc: HOME_DESC,
   url: `${SITE}/`,
   image: abs('/og/home.jpg'),
+  imageW: 1200,
+  imageH: 630,
   imageAlt: `${NAME}, ${ROLE}: portfolio`,
   type: 'profile',
   ld: [person, website, ...projects.map(workLd)],
