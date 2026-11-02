@@ -52,6 +52,7 @@ export default function FlipCard({
   disabled = false,
   touchTilt = false, // portfolio extension: a finger tilts the card like the mouse does
   ariaLabel = 'Flip card',
+  focusable = true, // portfolio extension: false = decorative, pointer-only (skipped by Tab and screen readers)
   className = ''
 }) {
   const reduce = useReducedMotion();
@@ -210,10 +211,10 @@ export default function FlipCard({
   return (
     <div
       ref={rootRef}
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      aria-pressed={shown}
-      aria-label={ariaLabel}
+      role={focusable ? 'button' : undefined}
+      tabIndex={focusable && !disabled ? 0 : -1}
+      aria-pressed={focusable ? shown : undefined}
+      aria-label={focusable ? ariaLabel : undefined}
       aria-disabled={disabled || undefined}
       className={`flip-card${className ? ` ${className}` : ''}`}
       data-axis={axis}

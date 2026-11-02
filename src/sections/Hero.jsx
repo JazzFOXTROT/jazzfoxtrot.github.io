@@ -123,6 +123,7 @@ function Collage() {
         onPointerUp={e => e.pointerType === 'touch' && onLeave()}
       >
         <FlipCard
+          focusable={false}
           width={Math.round(GLASS.w * k)}
           height={Math.round(GLASS.h * k)}
           radius={0}
@@ -147,6 +148,9 @@ function Collage() {
   );
 }
 
+const words = hero.rotating;
+const heroSentence = `${hero.titleStart} ${hero.titleJoin} ${words.slice(0, -1).join(', ')} and ${words[words.length - 1]}.`;
+
 export default function Hero() {
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   return (
@@ -157,6 +161,9 @@ export default function Hero() {
       <div className="hero__intro">
         <p className="hero__label">{hero.label}</p>
         <h1 className="hero__title serif">
+          {/* Screen readers and crawlers get one steady sentence; the animated version is visual only. */}
+          <span className="visually-hidden">{heroSentence}</span>
+          <span aria-hidden="true">
           <span className="hero__start">{hero.titleStart}</span>{' '}
           <span className="hero__end">
           {hero.titleJoin}{' '}
@@ -174,6 +181,7 @@ export default function Hero() {
             transition={{ type: 'spring', damping: 30, stiffness: 400 }}
           />
           <span className="hero__dot">.</span>
+          </span>
           </span>
         </h1>
         <p className="hero__lines">{hero.lines}</p>

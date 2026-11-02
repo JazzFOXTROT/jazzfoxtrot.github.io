@@ -27,6 +27,8 @@ export default function Home() {
 
   return (
     <main className="home">
+      {/* Hidden until a keyboard user presses Tab: jumps past the intro and menu. */}
+      <a href="#works" className="skip-link">Skip to selected work</a>
       <Hero />
       <Works />
       <Campaigns />
