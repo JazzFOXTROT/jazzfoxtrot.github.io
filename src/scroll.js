@@ -50,7 +50,13 @@ export function animateScroll(to, duration = 900) {
   });
 }
 
-const topOf = el => () => el.getBoundingClientRect().top + window.scrollY;
+// Sections land just below the sticky header. The pinned desktop "Me" stage is the exception:
+// it has to start exactly at the top for its scroll-driven opening to play.
+export const headerOffset = el => {
+  if (el.id === 'me' && !el.classList.contains('me--static')) return 0;
+  return document.querySelector('.site-header')?.offsetHeight || 0;
+};
+const topOf = el => () => el.getBoundingClientRect().top + window.scrollY - headerOffset(el);
 
 // "About me": glide to the closed card, then ~400 ms after it stops (incl. the 220 ms
 // settle inside animateScroll) it opens by itself.

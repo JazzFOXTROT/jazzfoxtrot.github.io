@@ -8,21 +8,8 @@ import { file } from '../asset.js';
 import bridgeSrc from '../assets/v3/bridge.jpg';
 import rockSrc from '../assets/v3/rock.jpg';
 import Ornament from '../components/Ornament.jsx';
-import { openAboutMe, scrollToSection } from '../scroll.js';
+import { NAV, go } from '../nav.js';
 import Arrow from '../components/Arrow.jsx';
-
-const NAV = [
-  { label: 'Selected work', href: '#works' },
-  { label: 'About me', href: '#me' },
-  { label: 'Contacts', href: '#contacts' },
-  { label: 'Resume', href: 'resume' },
-];
-
-const go = (e, href) => {
-  e.preventDefault();
-  if (href === '#me') openAboutMe();
-  else scrollToSection(href.slice(1));
-};
 
 // Collage geometry in Figma units (box 628 × 604, from x 732 / y 420 of the 1440 frame).
 const BOX = { w: 628, h: 604 };

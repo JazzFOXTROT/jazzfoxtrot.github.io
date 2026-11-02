@@ -35,6 +35,7 @@ export default function MeSection() {
   const sectionRef = useRef(null);
   const onProgress = useCallback((p, e) => {
     sectionRef.current?.style.setProperty('--me-p', e.toFixed(4));
+    window.dispatchEvent(new Event('me:progress')); // lets the sticky header re-check its colour
   }, []);
 
   const photo = (
