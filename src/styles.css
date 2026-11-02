@@ -265,41 +265,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .contacts__dots { width: clamp(56px, 6.25vw, 90px); height: auto; flex: none; margin-bottom: 0.05em; font-size: var(--t-h2); }
 .contacts__title { margin: 0; color: var(--ink); font-size: var(--t-h2); line-height: 1.1; white-space: nowrap; }
 .contacts__lead { margin: var(--s-16) 0 0; max-width: 896px; color: var(--paper); font-size: var(--t-lead); line-height: 1.4; }
-.contact-form { width: min(100%, 628px); display: grid; gap: var(--s-24); padding-top: var(--s-40); text-align: left; }
-.contact-form__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-24); }
-.field { display: grid; gap: var(--s-8); }
-.field__label { font-size: 14px; line-height: 1.3; color: var(--ink); }
-.field input, .field textarea {
-  width: 100%;
-  font: inherit;
-  font-size: 18px;
-  color: var(--ink);
-  background: var(--paper);
-  border: 0;
-  border-radius: 16px;
-  padding: 14px 16px;
-  height: 52px;
-  transition: box-shadow 0.2s;
-}
-.field textarea { height: 160px; resize: vertical; }
-.field input:focus, .field textarea:focus { outline: none; box-shadow: 0 0 0 3px var(--ink); }
-.contact-form__foot { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-24); flex-wrap: wrap-reverse; }
-.contact-form__send {
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 700;
-  font-size: 18.5px;
-  line-height: 1.3;
-  padding: 14.5px 29px;
-  border-radius: 16px;
-  transition: transform 0.2s var(--ease-out), opacity 0.2s;
-}
-.contact-form__send:hover { opacity: 0.85; }
-.contact-form__send:active { transform: scale(0.97); }
-.contact-form__send:disabled { opacity: 0.6; cursor: progress; }
-.contact-form__status:empty { display: none; }
-.contact-form__status { margin: 0; font-size: 16px; color: var(--paper); }
-.contact-form__status a { color: var(--paper); }
 .contacts__list { list-style: none; margin: 0; padding: 48px 0 0; display: flex; flex-direction: column; align-items: flex-end; }
 .contacts .tilde-link { --tl-size: clamp(32px, 3.34vw, 48px); --tl-size-hover: clamp(40px, 4.45vw, 64px); }
 .contacts__small { margin: var(--s-16) 0 0; font-size: 14px; color: #141210; opacity: 0.7; }
@@ -413,8 +378,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .works__gallery { padding: 0 16px; }
   .section-rule { gap: 12px; }
   .contacts { padding: var(--s-64) 16px 180px; }
-  .contact-form__row { grid-template-columns: 1fr; }
-  .to-top { right: auto; left: 16px; bottom: 16px; } /* keeps clear of the right-aligned Send button */
+  .to-top { right: auto; left: 16px; bottom: 16px; }
   .contacts__ornament { --o-scale: 0.42; left: 12px; bottom: 24px; }
   .project__curtain { padding-inline: 16px; }
   /* Long names wrap (balanced: "Turkey Travel / Editorial") instead of running under the count and ✕. */
