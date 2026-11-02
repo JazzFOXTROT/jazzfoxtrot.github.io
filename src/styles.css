@@ -179,13 +179,13 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   align-items: flex-start;
 }
 
-/* Collage: 628 × 604 box, bottom-right of the hero */
+/* Collage: 592 × 592 box (Figma), bottom-right of the hero */
 .collage {
   position: absolute;
   right: var(--gutter);
   bottom: 0;
-  width: min(628px, 43.6vw, calc((100svh - 330px) * 1.04));
-  aspect-ratio: 628 / 604;
+  width: min(592px, 41.1vw, calc(100svh - 330px));
+  aspect-ratio: 1;
   z-index: 1;
 }
 .collage__photo { position: absolute; display: block; object-fit: cover; }

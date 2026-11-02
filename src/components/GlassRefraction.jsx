@@ -8,6 +8,10 @@ import { useEffect, useRef } from 'react';
  *
  * Figma params: patternType 0 (lenticular), amount 100, seamlessness 0, frost 0,
  * iorDispersion 4, centerHandle { x: 50, y: 50, radius: 11.47, angle: 49.1 }, pixelWrapMode 0.
+ *
+ * On top of it Figma has its built-in Glass effect (frost radius 4). Measured against a Figma
+ * render, that adds a ~0.94 px soft blur; the rest of it is invisible here, so it is a CSS blur.
+ * The thin stripe cells cut off by the top-left / bottom-right corners are faded out.
  */
 
 const VERT = `#version 300 es
@@ -50,6 +54,15 @@ vec4 sampleZero(vec2 px) {
   if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) return vec4(0.0);
   return texture(uTex, uv);
 }
+// Position along the stripe axis, in cells.
+float stripePos(vec2 p, mat2 rot, float invSize) { return (rot * (p - uCenter)).x * invSize; }
+// 0 inside a thin stripe sliver cut off by a corner, 1 elsewhere.
+float cornerKeep(float q, float a, float b) {
+  float cell = floor(a);
+  if (q < cell - 0.025 || q > cell + 1.025) return 1.0; // a hair wider, so the cut edge's seam goes too
+  float inside = b > a ? (cell + 1.0 - a) : (a - cell); // how much of that stripe lies inside the glass
+  return smoothstep(0.2, 0.4, inside);
+}
 void main() {
   vec2 localPos = vec2(gl_FragCoord.x, uDims.y * uScale - gl_FragCoord.y) / uScale;
   float c = cos(uAngle), s = sin(uAngle);
@@ -76,12 +89,16 @@ void main() {
     }
   }
   vec4 col = acc / (n * n);
-  outColor = vec4(col.rgb, col.a);
+  float q = stripePos(localPos, rot, invSize);
+  float tl = stripePos(vec2(0.0), rot, invSize);
+  float br = stripePos(uDims, rot, invSize);
+  float keep = cornerKeep(q, tl, br) * cornerKeep(q, br, tl);
+  outColor = vec4(col.rgb, col.a * keep);
 }`;
 
 const PARAMS = { amount: 100, seamlessness: 0, iorDispersion: 4, radius: 11.473249435424805, angle: 49.10326385498047 };
 
-export default function GlassRefraction({ width, height, paintBackdrop, pointer, className = '' }) {
+export default function GlassRefraction({ width, height, paintBackdrop, pointer, blurScale = 1, className = '' }) {
   const canvasRef = useRef(null);
   const glRef = useRef(null);
   const pointerRef = useRef(pointer);
@@ -185,5 +202,6 @@ export default function GlassRefraction({ width, height, paintBackdrop, pointer,
     return () => clearTimeout(t);
   }, [pointer]);
 
-  return <canvas ref={canvasRef} className={`glass-refraction ${className}`.trim()} aria-hidden="true" />;
+  // Soft frost from Figma's Glass effect, scaled with the collage.
+  return <canvas ref={canvasRef} className={`glass-refraction ${className}`.trim()} style={{ filter: `blur(${(0.94 * blurScale).toFixed(2)}px)` }} aria-hidden="true" />;
 }

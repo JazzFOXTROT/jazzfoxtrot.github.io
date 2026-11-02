@@ -12,9 +12,10 @@ import { NAV, go } from '../nav.js';
 import Arrow from '../components/Arrow.jsx';
 
 // Collage geometry in Figma units (box 628 × 604, from x 732 / y 420 of the 1440 frame).
-const BOX = { w: 628, h: 604 };
-const BRIDGE = { x: 326, y: 0, w: 302, h: 437 };
-const ROCK = { x: 0, y: 227, w: 302, h: 377, crop: { x: 0.0993, y: 0.1985, w: 0.8017, h: 0.8007 } };
+// Positions match the current Figma hero (bridge 1058/380, rock 768/595, glass 910/445).
+const BOX = { w: 592, h: 592 };
+const BRIDGE = { x: 290, y: 0, w: 302, h: 437 };
+const ROCK = { x: 0, y: 215, w: 302, h: 377, crop: { x: 0.0993, y: 0.1985, w: 0.8017, h: 0.8007 } };
 const GLASS = { x: 142, y: 65, w: 335, h: 451 };
 const pct = (v, of) => `${(v / of) * 100}%`;
 
@@ -126,7 +127,7 @@ function Collage() {
           ariaLabel="Glass"
           front={
             <div className="glass">
-              <GlassRefraction width={GLASS.w} height={GLASS.h} paintBackdrop={paintBehindGlass} pointer={pointer} />
+              <GlassRefraction width={GLASS.w} height={GLASS.h} paintBackdrop={paintBehindGlass} pointer={pointer} blurScale={k} />
             </div>
           }
         />
