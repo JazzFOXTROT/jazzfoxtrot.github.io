@@ -15,6 +15,18 @@
   ],
   "projects": [
     {
+      "slug": "takenotes",
+      "name": "TakeNotes",
+      "card": "v3/card-takenotes.jpg",
+      "cardTitle": "The notebook that knows what you forget",
+      "tags": "Personal project · Product design · iPad app",
+      "about": "An iPad notebook for university students: write by hand, mark what matters, and the app turns your own marks into quizzes and a revision plan before the exam.",
+      "type": "case",
+      "url": "/TakeNotes/case-study/",
+      "group": "main",
+      "hidden": false
+    },
+    {
       "slug": "decibuy",
       "name": "DeciBuy",
       "card": "v3/card-decibuy.jpg",
