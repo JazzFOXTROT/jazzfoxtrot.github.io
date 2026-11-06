@@ -29,10 +29,10 @@ const Barcode = () => (
   </svg>
 );
 
-// Grainy blue marks between the small cards: Figma's own SVG export of Group 10 / Group 11
-// (layer blur 2.3 + texture), drawn at 3× so the grain stays sharp on retina screens.
+// Grainy blue marks between the small cards: Figma's own render of Group 10 / Group 11
+// (layer blur 2.3 + texture), pixel-doubled so the grain stays as sharp as in Figma on retina screens.
 function Deco({ kind }) {
-  return <img className={`tile-deco tile-deco--${kind}`} src={asset(`v4/deco-${kind}.svg`)} alt="" aria-hidden="true" draggable="false" />;
+  return <img className={`tile-deco tile-deco--${kind}`} src={asset(`v4/deco-${kind}.png`)} alt="" aria-hidden="true" draggable="false" />;
 }
 
 // Phones: the card under the middle of the screen is the "open" one (caption on, the rest dimmed),

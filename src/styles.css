@@ -890,3 +890,48 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .project__frame, .project__scroller { position: absolute; top: var(--bar-h); left: 0; right: 0; bottom: 0; height: auto; }
 .project__frame { width: 100%; height: calc(100% - var(--bar-h)); }
 @media (max-width: 899px) { .project { --bar-h: 58px; } } /* phones: ↗ and ✕ sit beside the name, the folded bar is lower */
+
+
+/* =====================================================================
+   V4 review 2: new hero picture, Figma sizes
+   ===================================================================== */
+/* Squiggles keep their Figma size (471 / 478 px wide) and only shrink on narrower screens. */
+.hero__squiggle--blue { width: min(471.5px, calc(471.5 / 1440 * 100vw)); }
+.hero__squiggle--cream { width: min(477.5px, calc(477.5 / 1440 * 100vw)); }
+
+/* Hero pic (Figma 123:993): 441 wide, glow starts at y 315, photo bottom at the hero's bottom edge,
+   141 px from the right. The exported picture is 441 × 617 (the glow runs 32 px past the bottom). */
+.hero__pic {
+  --pw: min(441px, calc(441 / 1440 * 100vw), calc((max(100svh, 760px) - 315px) * 441 / 585));
+  position: absolute;
+  z-index: 1;
+  right: min(141px, calc(141 / 1440 * 100vw));
+  bottom: calc(var(--pw) * -32 / 441);
+  width: var(--pw);
+  height: auto;
+  max-width: none;
+  pointer-events: none;
+}
+/* Blue marks: Figma's render is 196 px wide at 1x, shown at the column width. */
+.tile-deco { image-rendering: auto; }
+
+@media (max-width: 899px) {
+  .hero__squiggle--blue { width: 52vw; }
+  .hero__squiggle--cream { width: 52.7vw; }
+  .hero__pic {
+    --pw: min(86vw, 441px);
+    position: relative;
+    right: auto;
+    bottom: auto;
+    align-self: center;
+    margin: var(--s-40) 0 calc(var(--pw) * -32 / 441);
+  }
+}
+/* Figma hero: title 92 px, the menu ends 28 px above the hero's bottom edge (frame 900 high). */
+@media (min-width: 900px) {
+  .hero__title { font-size: clamp(40px, 6.39vw, 92px); }
+  .hero { padding-bottom: 28px; }
+}
+@media (max-width: 899px) {
+  .hero__lines { max-width: none; font-size: var(--t-lead); }
+}
