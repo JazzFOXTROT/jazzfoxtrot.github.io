@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
  * (refraction 0.8, depth 62, dispersion 0.5, frost 7, light -45°, intensity 0.8) and a 20% #7DA7D9 fill.
  * Browsers can't refract live DOM inside an arbitrary shape, so this refracts a snapshot of what sits
  * behind it (drawn by `paintBackdrop`) in WebGL. The bevel comes from a blurred copy of the shape:
- * its slope bends the rays near the edge, the flat middle stays almost clear, like Figma's glass.
+ * only a thin band at the edge bends the light; the pane itself stays flat (no bulge, no volume).
  */
 export const BLOB_PATH =
   'M320.321 290.794C316.178 308.789 283.572 295.16 273.407 288.206L216.403 249.246C221.639 264.17 220.597 296.759 206.39 297.343C187.457 298.104 181.408 273.18 174.216 258.13C148.04 306.073 114.341 377.012 83.2594 374.956C49.9925 372.748 81.6838 276.607 112.918 217.546C65.1393 239.475 7.98325 264.855 0.359057 239.576C-1.34368 233.942 3.18001 221.252 10.3213 216.506L87.4019 165.288C58.2521 153.587 26.8658 148.333 24.1465 128.003C21.4272 107.674 54.2621 112.217 95.3819 113.08C74.4408 70.3135 42.3684 17.3696 60.7935 3.23266C80.8959 -12.1987 113.121 30.5168 139.653 69.9328C146.489 40.7451 146.616 5.2631 164.889 1.12607C186.669 -3.82314 184.178 38.5878 201.079 63.5369C208.118 55.212 231.525 35.5675 241.843 42.7756C254.855 51.8618 244.994 74.5266 241.36 91.8616C281.641 74.8312 336.662 55.7958 351.555 74.7805C365.278 92.293 318.822 135.592 272.517 153.283C292.315 169.196 317.297 168.739 316.992 184.018C316.839 191.582 312.493 198.13 302.328 198.79L259.836 201.582C283.394 226.175 317.398 250.186 320.321 290.794Z';
@@ -48,24 +48,23 @@ void main() {
   float m = s.r;
   if (m < 0.002) { outColor = vec4(0.0); return; }
   vec2 px = 1.0 / uSize;
-  float hx = texture(uShape, vUv + vec2(px.x * 1.5, 0.0)).g - texture(uShape, vUv - vec2(px.x * 1.5, 0.0)).g;
-  float hy = texture(uShape, vUv + vec2(0.0, px.y * 1.5)).g - texture(uShape, vUv - vec2(0.0, px.y * 1.5)).g;
-  vec2 g = vec2(hx, hy) / 3.0;          // slope per px, points inward
-  float slope = clamp(length(g) * 50.0, 0.0, 1.0);
+  // A flat pane: only a thin band along the edge bends the light, the rest is clear frosted glass.
+  float hx = texture(uShape, vUv + vec2(px.x, 0.0)).g - texture(uShape, vUv - vec2(px.x, 0.0)).g;
+  float hy = texture(uShape, vUv + vec2(0.0, px.y)).g - texture(uShape, vUv - vec2(0.0, px.y)).g;
+  vec2 g = vec2(hx, hy) * 0.5;
+  float edge = clamp(length(g) * 9.0, 0.0, 1.0);
   vec2 dir = length(g) > 1e-5 ? normalize(g) : vec2(0.0);
-  // Rays bend toward the inside near the rim (magnifies the edge, like a lens).
-  vec2 off = dir * slope * slope * uAmount * px;
+  vec2 off = dir * edge * uAmount * px;
   vec3 col;
-  col.r = frosted(vUv + off * (1.0 + uDisp * 0.12)).r;
+  col.r = frosted(vUv + off * (1.0 + uDisp * 0.1)).r;
   col.g = frosted(vUv + off).g;
-  col.b = frosted(vUv + off * (1.0 - uDisp * 0.12)).b;
-  col = mix(col, vec3(1.0), 0.14); // a little milky, like Figma's frosted glass
+  col.b = frosted(vUv + off * (1.0 - uDisp * 0.1)).b;
+  col = mix(col, vec3(1.0), 0.2); // frosted, milky
   col = mix(col, uTint, uTintA);
-  // Light from -45°: a bright rim on the lit side, a softer one opposite.
-  float lit = dot(-dir, uLight);
-  float rim = smoothstep(0.35, 1.0, slope);
-  col += vec3(1.0) * rim * (max(lit, 0.0) * 0.55 + max(-lit, 0.0) * 0.18) * uIntensity;
-  col += vec3(1.0) * pow(1.0 - s.g, 6.0) * 0.12 * uIntensity;
+  // A hairline of light on the edge facing the light (-45°), nothing that reads as volume.
+  float lit = max(dot(-dir, uLight), 0.0);
+  float rim = smoothstep(0.55, 1.0, edge);
+  col += vec3(1.0) * rim * lit * 0.35 * uIntensity;
   outColor = vec4(clamp(col, 0.0, 1.0), m);
 }`;
 
@@ -139,7 +138,7 @@ export default function GlassBlob({ paintBackdrop, pointer, className = '' }) {
       gl.uniform1i(u('uBack'), 0);
       gl.uniform1i(u('uShape'), 1);
       gl.uniform2f(u('uSize'), BLOB.w, BLOB.h);
-      gl.uniform1f(u('uAmount'), GLASS.refraction * GLASS.depth * 0.32);
+      gl.uniform1f(u('uAmount'), GLASS.refraction * 10);
       gl.uniform1f(u('uDisp'), GLASS.dispersion);
       gl.uniform1f(u('uFrost'), GLASS.frost);
       // The light swings a little with the cursor/finger.
@@ -174,7 +173,7 @@ export default function GlassBlob({ paintBackdrop, pointer, className = '' }) {
       const img = sctx.getImageData(0, 0, W, H);
       const alpha = new Uint8ClampedArray(W * H);
       for (let i = 0; i < W * H; i += 1) alpha[i] = img.data[i * 4 + 3];
-      const blurred = blurChannel(alpha, W, H, Math.max(2, Math.round((GLASS.depth / 4) * (W / BLOB.w))));
+      const blurred = blurChannel(alpha, W, H, Math.max(1, Math.round(2.5 * (W / BLOB.w)))); // thin bevel: a flat pane
       for (let i = 0; i < W * H; i += 1) {
         img.data[i * 4] = alpha[i];
         img.data[i * 4 + 1] = blurred[i];

@@ -620,14 +620,6 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 :focus-visible { outline-color: var(--ink-navy); }
 
-/* Figma: the whole V4 frame carries a fine multitone grain (Noise 0.5, density 84%, 11%). */
-.home::after {
-  content: ''; position: fixed; inset: 0; z-index: 55; pointer-events: none;
-  opacity: 0.11;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6 2.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 1 1 1 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 240px 240px;
-}
-
 /* ---------- Sticky header: rounded liquid glass (Figma DESKTOP 65:148) ---------- */
 .site-header {
   --hdr-ink: var(--ink-navy);
@@ -716,7 +708,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .tile__tags, .tile__line { display: none; }
   .tile__name { font-size: clamp(16px, 9cqi, 24px); }
 }
-.tile-deco { display: block; width: 100%; flex: 1 1 0; min-height: 0; overflow: visible; }
+.tile-deco { display: block; width: 100%; flex: 1 1 0; min-height: 0; object-fit: contain; }
 
 /* Desktop: hovering a card opens its caption; the others go grey and dim (Figma closed state). */
 @media (hover: hover) and (min-width: 900px) {
@@ -776,7 +768,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .project__about { color: var(--ink-navy); opacity: calc(1 - var(--p) * 1.8); }
 .project__summary {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--s-24);
   margin: calc(var(--s-24) * (1 - var(--p))) 0 0;
   max-width: 1180px;
@@ -850,3 +842,51 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   .tile img, .tile__caption, .tile__shade { transition: none; }
 }
+
+
+/* =====================================================================
+   V4 fixes (review 1)
+   ===================================================================== */
+
+/* About, end state = Figma 04 · About, 1440 wide. One unit (--u) = 1 Figma px, scaled to the
+   screen width but never so big that the photo leaves the pinned stage. The photo keeps its
+   406 × 586 proportions and sits flush right; text, title and waves use the same unit. */
+.me { --u: min(calc(100vw / 1440), calc((100svh - var(--hdr-h, 92px)) / 860)); }
+.me__stage .me__photo {
+  left: calc(36.04% * (1 - var(--me-p)) + (100% - 406 * var(--u)) * var(--me-p));
+  top: calc(40.14% * (1 - var(--me-p)) + 219 * var(--u) * var(--me-p));
+  width: calc(28.19% * (1 - var(--me-p)) + 406 * var(--u) * var(--me-p));
+  height: calc(19.63% * (1 - var(--me-p)) + 586 * var(--u) * var(--me-p));
+}
+.me__stage .me__title {
+  left: calc(46.6% * (1 - var(--me-p)) + (100% - 151 * var(--u)) * var(--me-p));
+  top: calc(45.4% * (1 - var(--me-p)) + 62 * var(--u) * var(--me-p));
+  font-size: max(56px, calc(96 * var(--u)));
+}
+.me__stage .me__text {
+  top: calc(219 * var(--u));
+  width: calc(864 * var(--u));
+  max-width: none;
+  max-height: none;
+  font-size: max(15px, calc(22 * var(--u)));
+}
+.me__stage .me__text p { margin-bottom: calc(24 * var(--u)); }
+.me__stage .me__waves { height: calc(155 * var(--u)); margin-top: calc(94 * var(--u) - 24 * var(--u)); }
+.me__stage .me__wave--2 { left: calc(172 * var(--u)); }
+
+/* Phones: the same crop of the photo as in Figma (fountain to mid-thigh), not the whole picture. */
+.me--static .me__photo { position: relative; }
+.me--static .me__photo img {
+  position: absolute; max-width: none;
+  width: 196.2%; height: auto;
+  left: -54.93%; top: -40.6%;
+  object-fit: initial;
+}
+
+/* Project page: the curtain lies OVER the case, the case never changes size.
+   (Resizing the iframe on every scroll step made phones stutter.) */
+.project { --bar-h: 68px; display: block; }
+.project__curtain { position: absolute; top: 0; left: 0; right: 0; }
+.project__frame, .project__scroller { position: absolute; top: var(--bar-h); left: 0; right: 0; bottom: 0; height: auto; }
+.project__frame { width: 100%; height: calc(100% - var(--bar-h)); }
+@media (max-width: 899px) { .project { --bar-h: 58px; } } /* phones: ↗ and ✕ sit beside the name, the folded bar is lower */

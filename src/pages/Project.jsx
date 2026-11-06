@@ -15,7 +15,7 @@ const SUMMARY = [
   ['problem', 'Problem'],
   ['role', 'My role'],
   ['decision', 'Key decision'],
-  ['unvalidated', 'Not yet validated'],
+  // ['unvalidated', 'Not yet validated'], // hidden for now; the texts stay in works.json
 ];
 const srcSetOf = pg => {
   if (!RESPONSIVE || !pg.w) return undefined;
@@ -97,6 +97,24 @@ export default function Project() {
     rootRef.current?.style.setProperty('--p', (foldRef.current / max).toFixed(3));
   }, [foldMax]);
 
+  // Short eased glide of the curtain to fully open / fully closed (phones, after a swipe).
+  const snapRef = useRef(null);
+  const snapFold = useCallback(to => {
+    snapRef.current?.cancel();
+    const from = foldRef.current;
+    const start = performance.now();
+    const dur = 260;
+    let raf = 0;
+    const tick = now => {
+      const t = Math.min(1, (now - start) / dur);
+      const e = 1 - Math.pow(1 - t, 3);
+      setFold(from + (to - from) * e);
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    snapRef.current = { cancel: () => cancelAnimationFrame(raf) };
+  }, [setFold]);
+
   /*
    * The curtain takes the scroll first. `getTop` reads how far the content underneath is scrolled,
    * `scrollBy` moves it. Returns a cleanup.
@@ -119,24 +137,43 @@ export default function Project() {
     };
     const lineH = 40;
     const onWheel = e => {
+      snapRef.current?.cancel();
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // sideways swipes switch projects
       const dy = e.deltaMode === 1 ? e.deltaY * lineH : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
       // Over the curtain (not over the content), a closed curtain passes the scroll on to the content.
       if (!take(dy, e) && scrollBy && !e.target.closest?.('.project__scroller')) scrollBy(dy);
     };
     let lastY = null;
-    const onStart = e => { lastY = e.touches[0]?.clientY ?? null; };
+    let lastDir = 0;
+    let touching = false;
+    let touchEndedAt = 0;
+    const onStart = e => {
+      touching = true;
+      snapRef.current?.cancel();
+      lastY = e.touches[0]?.clientY ?? null;
+    };
     const onMove = e => {
       if (lastY === null || e.touches.length !== 1) return;
       const y = e.touches[0].clientY;
       const dy = lastY - y;
       lastY = y;
+      if (dy) lastDir = Math.sign(dy);
       take(dy, e);
     };
-    const onEnd = () => { lastY = null; };
-    // Keyboard, scrollbar drag, iOS momentum: if the content moved while the curtain is still open,
-    // hand that distance to the curtain and put the content back.
+    // A half-folded curtain finishes the move on its own, in the direction of the swipe.
+    const onEnd = () => {
+      lastY = null;
+      touching = false;
+      touchEndedAt = performance.now();
+      const max = foldMax();
+      const f = foldRef.current;
+      if (f > 0 && f < max) snapFold(lastDir > 0 ? max : 0);
+    };
+    // Keyboard and scrollbar drag: if the content moved while the curtain is still open,
+    // hand that distance to the curtain and put the content back. Never during a touch
+    // (iOS momentum would fight it and the page would jitter).
     const onScroll = () => {
+      if (touching || performance.now() - touchEndedAt < 900) return;
       const top = getTop();
       const max = foldMax();
       const f = foldRef.current;
@@ -150,6 +187,7 @@ export default function Project() {
     target.addEventListener('touchstart', onStart, { passive: true });
     target.addEventListener('touchmove', onMove, { passive: false });
     target.addEventListener('touchend', onEnd, { passive: true });
+    target.addEventListener('touchcancel', onEnd, { passive: true });
     const scrolls = scrollEl || target;
     scrolls.addEventListener('scroll', onScroll, { passive: true });
     return () => {
@@ -157,9 +195,10 @@ export default function Project() {
       target.removeEventListener('touchstart', onStart);
       target.removeEventListener('touchmove', onMove);
       target.removeEventListener('touchend', onEnd);
+      target.removeEventListener('touchcancel', onEnd);
       scrolls.removeEventListener('scroll', onScroll);
     };
-  }, [foldMax, setFold]);
+  }, [foldMax, setFold, snapFold]);
 
   // Horizontal trackpad swipe and keyboard → previous / next project (desktop).
   // No touch swipe on phones: case studies have their own swipeable carousels (DeciBuy's cards),

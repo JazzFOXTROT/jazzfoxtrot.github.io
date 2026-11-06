@@ -29,38 +29,10 @@ const Barcode = () => (
   </svg>
 );
 
-// Grainy blue marks between the small cards (Figma: Group 10 / Group 11, layer blur 2.3 + texture).
-let decoId = 0;
+// Grainy blue marks between the small cards: Figma's own SVG export of Group 10 / Group 11
+// (layer blur 2.3 + texture), drawn at 3× so the grain stays sharp on retina screens.
 function Deco({ kind }) {
-  const [id] = useState(() => `grain-${(decoId += 1)}`);
-  const filter = (
-    <filter id={id} x="-25%" y="-35%" width="150%" height="170%" colorInterpolationFilters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.42 0.75" numOctaves="2" seed="7" result="n" />
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G" result="d" />
-      <feGaussianBlur in="d" stdDeviation="1.15" />
-    </filter>
-  );
-  if (kind === 'pills') {
-    return (
-      <svg className="tile-deco tile-deco--pills" viewBox="-20 -20 198.42 123.02" aria-hidden="true">
-        <defs>{filter}</defs>
-        <g filter={`url(#${id})`} fill="#7EA1D1">
-          <rect x="0" y="0" width="158.42" height="34.73" rx="17.37" />
-          <rect x="11.02" y="23.72" width="136.39" height="35.58" rx="17.79" />
-          <rect x="0" y="48.29" width="158.42" height="34.73" rx="17.37" />
-        </g>
-      </svg>
-    );
-  }
-  return (
-    <svg className="tile-deco tile-deco--cross" viewBox="-20 -20 217.44 142.76" aria-hidden="true">
-      <defs>{filter}</defs>
-      <g filter={`url(#${id})`} fill="#7EA1D1" transform="translate(88.72 51.38)">
-        <rect x="-86" y="-20.7" width="172" height="41.4" rx="20.7" transform="rotate(30.6)" />
-        <rect x="-86" y="-20.7" width="172" height="41.4" rx="20.7" transform="rotate(-30.6)" />
-      </g>
-    </svg>
-  );
+  return <img className={`tile-deco tile-deco--${kind}`} src={asset(`v4/deco-${kind}.svg`)} alt="" aria-hidden="true" draggable="false" />;
 }
 
 // Phones: the card under the middle of the screen is the "open" one (caption on, the rest dimmed),
