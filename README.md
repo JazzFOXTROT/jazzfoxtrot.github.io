@@ -31,15 +31,17 @@ Push to `main`. The GitHub Actions workflow builds and publishes `dist/`
 Every earlier design is kept on its own branch on GitHub:
 
 - `archive-v3`: the V3 design (also live at https://blik.design/archive/v3/).
-- `archive-v4-audit` (and tag `v4-audit-final`): the audit V4 design that was live until the
+- `archive-v4-audit`: the audit V4 design that was live until the
   Figma V4 redesign on 2026-11-06.
 
 To put an old version back on blik.design:
 
 ```bash
 git checkout main
-git revert --no-edit <first-redesign-commit>..HEAD   # or: git reset --hard v4-audit-final
-git push                                             # (after reset: git push --force-with-lease)
+git fetch origin
+git reset --hard origin/archive-v4-audit
+git push --force-with-lease
+# to return to the new design later: git reset --hard <commit> (see `git reflog`)
 ```
 
 The push deploys automatically. Links, the sitemap, SEO tags and the domain don't change,
