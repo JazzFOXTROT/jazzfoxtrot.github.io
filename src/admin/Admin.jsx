@@ -161,7 +161,7 @@ function WorkForm({ initial, isNew, groups, takenSlugs, srcOf, addUpload, onSave
       const path = `uploads/${slug}/${name}-${Date.now().toString(36)}.${img.ext}`;
       addUpload(path, img);
       if (kind === 'card') {
-        set({ card: path });
+        set({ card: path, card2x: undefined }); // a new card replaces the hand-made @2x too
         setNote(img.cropped ? `Карточка обрезана по центру до пропорции ${CARD.w}×${CARD.h}.` : '');
       } else {
         setW(v => {

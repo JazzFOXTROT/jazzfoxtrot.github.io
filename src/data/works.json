@@ -24,7 +24,8 @@
       "type": "case",
       "url": "/TakeNotes/case-study/",
       "group": "main",
-      "hidden": false
+      "hidden": false,
+      "card2x": "v3/card-takenotes@2x.jpg"
     },
     {
       "slug": "decibuy",
@@ -36,7 +37,8 @@
       "type": "case",
       "url": "/DeciBuy/case/",
       "group": "main",
-      "hidden": false
+      "hidden": false,
+      "card2x": "v3/card-decibuy@2x.jpg"
     },
     {
       "slug": "leeway",
@@ -48,7 +50,8 @@
       "type": "case",
       "url": "/leeway0.1/case/index-en.html",
       "group": "main",
-      "hidden": false
+      "hidden": false,
+      "card2x": "v3/card-leeway@2x.jpg"
     },
     {
       "slug": "travel",

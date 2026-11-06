@@ -91,6 +91,9 @@ function AccordionBlock({ list }) {
   const navigate = useNavigate();
   const items = list.map(p => ({
     image: asset(p.card),
+    // Phones take the 1200-px card, laptops and big screens the 2400-px one.
+    srcSet: p.card2x ? `${asset(p.card)} 1200w, ${asset(p.card2x)} 2400w` : undefined,
+    sizes: p.card2x ? '(max-width: 899px) 100vw, 50vw' : undefined,
     label: `${p.name}: ${p.cardTitle}`,
     alt: `${p.name}: ${p.cardTitle}`,
     link: workHref(p.slug),
