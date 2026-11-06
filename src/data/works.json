@@ -25,7 +25,13 @@
       "url": "/TakeNotes/case-study/",
       "group": "main",
       "hidden": false,
-      "card2x": "v3/card-takenotes@2x.jpg"
+      "card2x": "v3/card-takenotes@2x.jpg",
+      "summary": {
+        "problem": "Students reread and highlight, which barely helps memory, and most only test themselves the night before an exam.",
+        "role": "Solo product designer: research, UX/UI, the native iPad app and its landing page. Claude wrote the code under my direction.",
+        "decision": "Anything you mark becomes a question that comes back before you forget it. A dedicated marker always makes a question, because pen gestures worked about 1 time in 4 at lecture speed.",
+        "unvalidated": "Whether it improves retention. Beta feedback (13 TestFlight testers) is informal: no counts, no recordings."
+      }
     },
     {
       "slug": "decibuy",
@@ -38,7 +44,13 @@
       "url": "/DeciBuy/case/",
       "group": "main",
       "hidden": false,
-      "card2x": "v3/card-decibuy@2x.jpg"
+      "card2x": "v3/card-decibuy@2x.jpg",
+      "summary": {
+        "problem": "People buy in minutes, often late at night, and the regret comes later. Few do the “can I afford it” math before every purchase.",
+        "role": "Solo product designer: research, UX, UI and a coded prototype, with Claude as a production and critique partner.",
+        "decision": "Three equal answers, Buy, Wait for payday or Not now, from ranges asked once. No spending log, no bank connection.",
+        "unvalidated": "Almost everything: most research was AI-simulated, so every decision is a hypothesis until tested with real people. Not launched."
+      }
     },
     {
       "slug": "leeway",
@@ -51,12 +63,18 @@
       "url": "/leeway0.1/case/index-en.html",
       "group": "main",
       "hidden": false,
-      "card2x": "v3/card-leeway@2x.jpg"
+      "card2x": "v3/card-leeway@2x.jpg",
+      "summary": {
+        "problem": "The security interview at Ben Gurion is unpredictable, so travelers arrive about three hours early just in case (3 of 4 interviewees).",
+        "role": "Solo, John Bryce capstone: research, UX/UI, design system and a 12-screen front-end prototype in 4 languages.",
+        "decision": "Book only the security screening. Check-in is shown, never promised: a check-in slot would be a guess dressed as a reservation.",
+        "unvalidated": "Usability: up to seven people tried it informally, with no tasks or recordings. Real capacity needs airport integration."
+      }
     },
     {
       "slug": "travel",
       "name": "Turkey Travel Editorial",
-      "card": "v3/card-travel.jpg",
+      "card": "v3/card-travel-v4.jpg",
       "cardTitle": "Web design · Responsive UI",
       "tags": "Web design · Responsive UI · Design system",
       "about": "A travel blog about Turkey: home and blog pages, a mobile version and a small design system, designed in Figma.",
@@ -92,12 +110,13 @@
           "h": 1800,
           "narrow": false
         }
-      ]
+      ],
+      "card2x": "v3/card-travel-v4@2x.jpg"
     },
     {
       "slug": "photographer",
       "name": "William Smith Photography",
-      "card": "v3/card-photographer.jpg",
+      "card": "v3/card-photographer-v4.jpg",
       "cardTitle": "Web design · Visual design",
       "tags": "Web design · Visual design · Concept",
       "about": "A one-page portfolio for a wedding and commercial photographer (fictional client), designed in Figma.",
@@ -112,7 +131,8 @@
           "h": 8198,
           "narrow": false
         }
-      ]
+      ],
+      "card2x": "v3/card-photographer-v4@2x.jpg"
     }
   ]
 }

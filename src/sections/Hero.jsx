@@ -1,22 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import RotatingText from '../components/reactbits/RotatingText.jsx';
 import FlipCard from '../components/reactbits/FlipCard.jsx';
-import GlassRefraction from '../components/GlassRefraction.jsx';
+import GlassBlob, { BLOB, BLOB_PATH } from '../components/GlassBlob.jsx';
 import { hero, resume } from '../content.js';
-import { file } from '../asset.js';
+import { asset, file } from '../asset.js';
 // Bundled (not /public) so the glass shader can read them even from a local file:// preview.
 import bridgeSrc from '../assets/v3/bridge.jpg';
 import rockSrc from '../assets/v3/rock.jpg';
-import Ornament from '../components/Ornament.jsx';
 import { NAV, go } from '../nav.js';
 import Arrow from '../components/Arrow.jsx';
 
-// Collage geometry in Figma units (box 628 × 604, from x 732 / y 420 of the 1440 frame).
-// Positions match the current Figma hero (bridge 1058/380, rock 768/595, glass 910/445).
+// Collage geometry in Figma units (box 592 × 592 from x 768 / y 380 of the 1440 frame, Figma V4).
+// Photos: bridge 1058/380, rock 768/595. The glass is now the blue blob (Vector 107:846) at 893/442.
 const BOX = { w: 592, h: 592 };
 const BRIDGE = { x: 290, y: 0, w: 302, h: 437 };
 const ROCK = { x: 0, y: 215, w: 302, h: 377, crop: { x: 0.0993, y: 0.1985, w: 0.8017, h: 0.8007 } };
-const GLASS = { x: 142, y: 65, w: 335, h: 451 };
+const GLASS = { x: 125, y: 62, w: BLOB.w, h: BLOB.h };
 const pct = (v, of) => `${(v / of) * 100}%`;
 
 const loadImage = src =>
@@ -28,12 +27,12 @@ const loadImage = src =>
     img.src = src;
   });
 
-// Draw what sits behind the glass (in glass coordinates) for the refraction shader.
+// Draw what sits behind the glass (in glass coordinates) for the refraction shader:
+// the white page and both photos.
 async function paintBehindGlass(ctx) {
   const [bridge, rock] = await Promise.all([loadImage(bridgeSrc), loadImage(rockSrc)]);
-  // Same input as the Figma effect: page colour + both photos behind, then the glass layer's own 20% black.
-  ctx.fillStyle = '#d5492b';
-  ctx.fillRect(0, 0, GLASS.w, GLASS.h);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(-40, -40, GLASS.w + 80, GLASS.h + 80);
   const bx = BRIDGE.x - GLASS.x;
   const by = BRIDGE.y - GLASS.y;
   const s = Math.max(BRIDGE.w / bridge.width, BRIDGE.h / bridge.height); // object-fit: cover
@@ -51,8 +50,6 @@ async function paintBehindGlass(ctx) {
     c.x * rock.width, c.y * rock.height, c.w * rock.width, c.h * rock.height,
     ROCK.x - GLASS.x, ROCK.y - GLASS.y, ROCK.w, ROCK.h
   );
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-  ctx.fillRect(0, 0, GLASS.w, GLASS.h);
 }
 
 function Collage() {
@@ -104,7 +101,7 @@ function Collage() {
       </div>
       <div
         className="collage__glass"
-        style={{ left: pct(GLASS.x, BOX.w), top: pct(GLASS.y, BOX.h) }}
+        style={{ left: pct(GLASS.x, BOX.w), top: pct(GLASS.y, BOX.h), width: pct(GLASS.w, BOX.w), height: pct(GLASS.h, BOX.h) }}
         onPointerMove={onMove}
         onPointerLeave={onLeave}
         onPointerCancel={onLeave}
@@ -127,7 +124,8 @@ function Collage() {
           ariaLabel="Glass"
           front={
             <div className="glass">
-              <GlassRefraction width={GLASS.w} height={GLASS.h} paintBackdrop={paintBehindGlass} pointer={pointer} blurScale={k} />
+              <GlassBlob paintBackdrop={paintBehindGlass} pointer={pointer} />
+              <svg className="glass-blob__fallback" viewBox={`0 0 ${BLOB.w} ${BLOB.h}`} aria-hidden="true"><path d={BLOB_PATH} /></svg>
             </div>
           }
         />
@@ -143,8 +141,10 @@ export default function Hero() {
   const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   return (
     <section className="hero" aria-label="Intro">
-      <span className="hero__logo serif">blik.</span>
-      <Ornament corner="top-right" className="hero__ornament" />
+      <span className="hero__logo serif">blik<span className="hero__logo-dot">.</span></span>
+      {/* Figma V4: two grainy squiggles in the top-right corner (blue under, cream on top). */}
+      <img className="hero__squiggle hero__squiggle--blue" src={asset('v4/hero-squiggle-blue.svg')} alt="" aria-hidden="true" />
+      <img className="hero__squiggle hero__squiggle--cream" src={asset('v4/hero-squiggle-yellow.svg')} alt="" aria-hidden="true" />
 
       <div className="hero__intro">
         <p className="hero__label">{hero.label}</p>

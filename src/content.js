@@ -45,5 +45,16 @@ import worksData from './data/works.json';
 
 export const groups = worksData.groups;
 export const projects = worksData.projects.filter(p => !p.hidden && groups.some(g => g.id === p.group));
-// Same order as on the home page: group by group.
-export const orderedProjects = groups.flatMap(g => projects.filter(p => p.group === g.id));
+// Same order as on the home page: the selected-work mosaic alternates a big card (first group)
+// with a small one (the other groups): TakeNotes, Turkey, DeciBuy, Photographer, Leeway.
+const interleave = (big, small) => {
+  const out = [];
+  for (let i = 0; i < Math.max(big.length, small.length); i += 1) {
+    if (big[i]) out.push(big[i]);
+    if (small[i]) out.push(small[i]);
+  }
+  return out;
+};
+export const bigProjects = projects.filter(p => p.group === groups[0]?.id);
+export const smallProjects = groups.slice(1).flatMap(g => projects.filter(p => p.group === g.id));
+export const orderedProjects = interleave(bigProjects, smallProjects);

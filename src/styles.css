@@ -604,3 +604,249 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 @media (prefers-reduced-motion: reduce) {
   .commercial__panel, .commercial__gallery { transition: none; }
 }
+
+/* =====================================================================
+   Figma V4 (new version): white page, soft blue, cream and light-blue bands.
+   Everything below overrides the V3 colours above; the interactions stay the same.
+   ===================================================================== */
+:root {
+  --bg: #ffffff;
+  --accent: #7da7d9;      /* "intuitive", the logo dot, marks */
+  --ink-navy: #304860;    /* nav, About text */
+  --sky: #ddeeff;         /* About + What I bring */
+  --cream: #fff7cc;       /* campaigns band */
+  --brand-blue: #80a7db;  /* campaigns title and logos */
+  --navy: #304860;
+}
+:focus-visible { outline-color: var(--ink-navy); }
+
+/* Figma: the whole V4 frame carries a fine multitone grain (Noise 0.5, density 84%, 11%). */
+.home::after {
+  content: ''; position: fixed; inset: 0; z-index: 55; pointer-events: none;
+  opacity: 0.11;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6 2.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 1 1 1 1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+/* ---------- Sticky header: rounded liquid glass (Figma DESKTOP 65:148) ---------- */
+.site-header {
+  --hdr-ink: var(--ink-navy);
+  inset: 12px 16px auto;
+  height: 80px;
+  padding: 0 calc(var(--gutter) - 16px);
+  border-radius: 40px;
+  overflow: hidden;
+  color: var(--hdr-ink);
+  background: rgba(255, 255, 255, 0.38);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow:
+    inset 1.5px 1.5px 0 rgba(255, 255, 255, 0.9),
+    inset -1px -1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 18px rgba(255, 255, 255, 0.35),
+    0 0 0 0.5px rgba(48, 72, 96, 0.12),
+    0 10px 32px rgba(48, 72, 96, 0.12);
+  transform: translateY(calc(-100% - 24px));
+}
+/* Chromium: the rim also bends what's behind it (SVG displacement map from SiteHeader.jsx). */
+.site-header--liquid { backdrop-filter: url(#site-header-glass) blur(10px) saturate(180%); }
+.site-header[data-dark] { --hdr-ink: var(--paper); background: rgba(20, 32, 44, 0.32); box-shadow: inset 1.5px 1.5px 0 rgba(255, 255, 255, 0.4), inset -1px -1px 0 rgba(255, 255, 255, 0.15), 0 10px 32px rgba(0, 0, 0, 0.2); }
+.site-header::before { /* soft light sweep on the glass, top-left (light at -45°) */
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, 0.18));
+}
+.site-header > * { position: relative; }
+.site-header .liquid-filter { position: absolute; width: 0; height: 0; }
+.site-header__logo { color: inherit; }
+
+/* ---------- Hero ---------- */
+.hero__logo { position: relative; z-index: 2; }
+.hero__logo-dot { color: var(--accent); }
+.hero__rotate { color: var(--accent); }
+.hero__lines { color: var(--ink); font-size: clamp(18px, 2vw, 28.8px); max-width: min(760px, 56vw); }
+.hero__squiggle { position: absolute; top: 0; right: 0; height: auto; pointer-events: none; z-index: 0; max-width: none; }
+.hero__squiggle--blue { width: calc(471.5 / 1440 * 100vw); }
+.hero__squiggle--cream { width: calc(477.5 / 1440 * 100vw); }
+.collage__glass { position: absolute; z-index: 2; }
+.glass-blob { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.glass-blob__fallback { display: none; position: absolute; inset: 0; width: 100%; height: 100%; fill: rgba(125, 167, 217, 0.35); }
+.glass-blob[data-fallback] + .glass-blob__fallback { display: block; }
+
+/* ---------- Selected work: mosaic (Figma 42:150 · Mobile view 106:820) ---------- */
+.works__lines { color: var(--ink); }
+.works__mosaic { padding: 0 var(--gutter); container-type: inline-size; }
+.mosaic {
+  list-style: none; margin: 0; padding: 0;
+  display: grid;
+  grid-template-columns: 283fr 196fr 283fr 196fr 283fr;
+  gap: calc(10 / 1280 * 100cqw);
+  align-items: start;
+}
+.mosaic__cell { min-width: 0; }
+.mosaic__cell--small { display: flex; flex-direction: column; gap: calc(10 / 1280 * 100cqw); align-self: stretch; }
+.mosaic__cell--s1 .tile-deco { order: -1; }
+.tile {
+  position: relative; display: block; overflow: hidden;
+  container-type: inline-size;
+  color: #fff; text-decoration: none;
+  background: #e9eef4;
+  -webkit-tap-highlight-color: transparent;
+}
+.tile--big { aspect-ratio: 283 / 323; }
+.tile--small { aspect-ratio: 196 / 214; flex: none; }
+.tile img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: filter 0.5s var(--ease-out), transform 0.7s var(--ease-out);
+}
+.tile__shade { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); opacity: 0; transition: opacity 0.5s var(--ease-out); pointer-events: none; }
+/* Caption (Figma "Case · DeciBuy (open)"): gradient from the top, tags, name ↗, one line. */
+.tile__caption {
+  position: absolute; left: 0; right: 0; top: 0;
+  display: grid; gap: 0.25em;
+  padding: clamp(10px, 3.4cqi, 20px) clamp(10px, 3.4cqi, 20px) clamp(40px, 16cqi, 80px);
+  background: linear-gradient(to bottom, rgba(10, 20, 26, 0.88) 0%, rgba(10, 20, 26, 0.6) 55%, rgba(10, 20, 26, 0));
+  opacity: 0; transform: translateY(-6px);
+  transition: opacity 0.35s var(--ease-out), transform 0.45s var(--ease-out);
+  pointer-events: none;
+}
+.tile__tags { font-size: clamp(8px, 2.25cqi, 12px); letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; line-height: 1.3; }
+.tile__name { font-size: clamp(18px, 6.5cqi, 40px); line-height: 1.05; }
+.tile__line { font-size: clamp(11px, 2.9cqi, 16px); line-height: 1.3; opacity: 0.95; max-width: 30ch; }
+@container (max-width: 240px) {
+  .tile__tags, .tile__line { display: none; }
+  .tile__name { font-size: clamp(16px, 9cqi, 24px); }
+}
+.tile-deco { display: block; width: 100%; flex: 1 1 0; min-height: 0; overflow: visible; }
+
+/* Desktop: hovering a card opens its caption; the others go grey and dim (Figma closed state). */
+@media (hover: hover) and (min-width: 900px) {
+  .tile:hover img, .tile:focus-visible img { transform: scale(1.03); }
+  .tile:hover .tile__caption, .tile:focus-visible .tile__caption { opacity: 1; transform: none; }
+  .mosaic:has(.tile:hover) .tile:not(:hover) img,
+  .mosaic:has(.tile:focus-visible) .tile:not(:focus-visible) img { filter: grayscale(1); }
+  .mosaic:has(.tile:hover) .tile:not(:hover) .tile__shade,
+  .mosaic:has(.tile:focus-visible) .tile:not(:focus-visible) .tile__shade { opacity: 1; }
+}
+.tile:focus-visible { outline: 2px solid var(--ink-navy); outline-offset: 3px; }
+
+/* ---------- Commercial ---------- */
+.commercial__toggle:hover .commercial__name,
+.commercial__item.is-open .commercial__name { color: var(--accent); }
+.works__more-lines { color: var(--ink); }
+
+/* ---------- Campaigns: cream band, blue type and logos ---------- */
+.campaigns { background: var(--cream); }
+.campaigns__title { color: var(--brand-blue); }
+.campaigns__note { color: var(--brand-blue); }
+
+/* ---------- About (Me) + What I bring: one light-blue panel, navy text ---------- */
+.me__stage .me__title { color: color-mix(in srgb, #fff calc((1 - var(--me-p)) * 100%), #304962); }
+.me__stage .me__text { color: #304861; }
+.me__waves { display: block; pointer-events: none; }
+.me__wave { position: absolute; height: auto; max-width: none; }
+/* The waves follow the text (Figma: 94 px under it), from the left edge of the screen. */
+.me__stage .me__waves { position: relative; height: calc(155 / 1440 * 100vw); margin: clamp(32px, 4vw, 64px) 0 0 -5.56vw; opacity: clamp(0, calc((var(--me-p) - 0.75) * 4), 1); }
+.me__stage .me__wave { top: 0; height: 100%; width: auto; }
+.me__stage .me__wave--1 { left: 0; }
+.me__stage .me__wave--2 { left: calc(172 / 1440 * 100vw); }
+.me--static { background: var(--sky); color: #304861; padding-bottom: var(--s-64); }
+.me--static .me__title { color: #304962; }
+.me--static .me__waves { position: relative; height: 96px; margin: var(--s-16) -16px 0; }
+.me--static .me__wave { top: 0; height: 96px; width: auto; }
+.me--static .me__wave--1 { left: 0; }
+.me--static .me__wave--2 { left: 107px; }
+
+.bring { background: var(--sky); color: var(--ink-navy); }
+.bring__title { opacity: 1; }
+.bring__item { border-top-color: rgba(48, 72, 96, 0.9); }
+.bring__name { color: var(--ink-navy); }
+
+/* ---------- Contacts ---------- */
+.contacts { overflow: hidden; }
+.contacts > *:not(.contacts__line) { position: relative; z-index: 1; }
+.contacts__lead { color: var(--ink); }
+.contacts__line { position: absolute; left: 0; bottom: 0; width: min(628px, 43.6vw); height: auto; pointer-events: none; z-index: 0; }
+
+.to-top { background: var(--ink-navy); }
+
+/* ---------- Project page: light-blue curtain + recruiter summary ---------- */
+.project { background: #fff; }
+.project__curtain { background: var(--sky); box-shadow: 0 1px 0 rgba(48, 72, 96, calc(0.2 * var(--p))); }
+.project__name { color: var(--ink-navy); }
+.project__about { color: var(--ink-navy); opacity: calc(1 - var(--p) * 1.8); }
+.project__summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--s-24);
+  margin: calc(var(--s-24) * (1 - var(--p))) 0 0;
+  max-width: 1180px;
+  max-height: calc((1 - var(--p)) * 16em);
+  overflow: hidden;
+  opacity: calc(1 - var(--p) * 2.2);
+  color: var(--ink-navy);
+}
+.project__fact { border-top: 1px solid rgba(48, 72, 96, 0.35); padding-top: 10px; }
+.project__fact dt { font-size: 12px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #5b84b6; }
+.project__fact dd { margin: 6px 0 0; font-size: 15px; line-height: 1.45; }
+.project__count, .project__open { color: var(--ink-navy); }
+.project__close { background: var(--ink-navy); }
+.project__frame { background: #fff; }
+.project__page figcaption { color: var(--ink-navy); }
+
+@media (max-width: 1100px) {
+  .project__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 899px) {
+  /* Phone header: the same one-row menu, as a glass pill under the status bar. */
+  .site-header {
+    inset: max(8px, env(safe-area-inset-top)) 8px auto;
+    height: 48px; padding: 0 18px; border-radius: 24px;
+  }
+  .site-header::after { display: none; }
+  .hero__squiggle--blue { width: 52vw; }
+  .hero__squiggle--cream { width: 52.7vw; }
+
+  .works__mosaic { padding: 0 16px; }
+  .mosaic { grid-template-columns: 1fr 1fr; gap: calc(12 / 491 * 100cqw); }
+  /* Figma Mobile view: TakeNotes full width; then DeciBuy 283 + Turkey 196; Photographer 196 + Leeway 283. */
+  .mosaic--five { grid-template-columns: 196fr 75fr 196fr; }
+  .mosaic--five > :nth-child(1) { grid-column: 1 / -1; }
+  .mosaic--five > :nth-child(1) .tile { aspect-ratio: 491 / 560; }
+  .mosaic--five > :nth-child(2) { grid-column: 3; grid-row: 2; }
+  .mosaic--five > :nth-child(3) { grid-column: 1 / 3; grid-row: 2; }
+  .mosaic--five > :nth-child(4) { grid-column: 1; grid-row: 3; }
+  .mosaic--five > :nth-child(5) { grid-column: 2 / 4; grid-row: 3; }
+  .mosaic--five .mosaic__cell--s0 .tile-deco { order: -1; }
+  .mosaic--five .mosaic__cell--s1 .tile-deco { order: 0; }
+  .mosaic__cell--small { gap: calc(12 / 491 * 100cqw); }
+  /* The card in the middle of the screen is the open one. */
+  .tile[data-active] .tile__caption { opacity: 1; transform: none; }
+  .mosaic--focus .tile:not([data-active]) img { filter: grayscale(1); }
+  .mosaic--focus .tile:not([data-active]) .tile__shade { opacity: 1; }
+
+  .contacts__line { width: 78vw; }
+
+  /* Name, line and summary use the full width; ↗ and ✕ sit in the top-right corner. */
+  .project__curtain { display: block; }
+  .project__name { padding-right: 100px; }
+  .project__tools { position: absolute; right: 16px; top: calc(40px - 26px * var(--p)); padding-top: 0; }
+  .project__about { font-size: 17px; max-height: calc((1 - var(--p)) * 12em); }
+  .project__summary { grid-template-columns: 1fr; gap: 12px; max-height: calc((1 - var(--p)) * 40em); }
+  .project__fact { padding-top: 8px; }
+  .project__fact dt { font-size: 11px; }
+  .project__fact dd { font-size: 14px; margin-top: 4px; }
+  /* Phones can open the case study on its own too: a round ↗ next to the ✕. */
+  .project__open {
+    display: grid; place-items: center;
+    width: 40px; height: 40px; border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--ink-navy);
+    font-size: 18px;
+  }
+  .project__open .arrow-ne { margin: 0; }
+  .project__open-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile img, .tile__caption, .tile__shade { transition: none; }
+}

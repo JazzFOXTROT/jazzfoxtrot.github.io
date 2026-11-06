@@ -49,7 +49,7 @@ function Category({ cat, open, onToggle }) {
               <CircularGallery
                 items={items}
                 bend={2}
-                textColor="#ffffff"
+                textColor="#304860"
                 font="400 22px 'Geist Variable'"
                 borderRadius={0.04}
                 itemAspect={0.9}

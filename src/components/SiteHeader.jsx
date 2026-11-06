@@ -3,9 +3,83 @@ import { NAV, go } from '../nav.js';
 import { resume } from '../content.js';
 import { animateScroll } from '../scroll.js';
 import Arrow from './Arrow.jsx';
-import { asset, file } from '../asset.js';
+import { file } from '../asset.js';
 
 const SECTIONS = ['works', 'me', 'contacts'];
+
+/*
+ * Liquid glass (Figma V4 nav: a rounded white bar, made of glass).
+ * Every browser gets frosted glass with a bright rim (CSS). Chromium also bends what's behind the
+ * rim like a lens: an SVG displacement map, drawn for the bar's exact size, used as a backdrop-filter.
+ */
+const CHROMIUM = typeof navigator !== 'undefined' && !!navigator.userAgentData?.brands?.some(b => /Chromium/.test(b.brand));
+
+function displacementMap(w, h, r, bezel) {
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  const img = ctx.createImageData(w, h);
+  for (let y = 0; y < h; y += 1) {
+    for (let x = 0; x < w; x += 1) {
+      // Signed distance to the rounded-rect edge (positive inside) and the outward normal.
+      const qx = Math.max(Math.abs(x + 0.5 - w / 2) - (w / 2 - r), 0);
+      const qy = Math.max(Math.abs(y + 0.5 - h / 2) - (h / 2 - r), 0);
+      const len = Math.hypot(qx, qy);
+      let d;
+      let nx = 0;
+      let ny = 0;
+      if (len > 0) {
+        d = r - len;
+        nx = (qx / len) * Math.sign(x + 0.5 - w / 2);
+        ny = (qy / len) * Math.sign(y + 0.5 - h / 2);
+      } else {
+        const dx = w / 2 - Math.abs(x + 0.5 - w / 2);
+        const dy = h / 2 - Math.abs(y + 0.5 - h / 2);
+        d = r + Math.min(dx - r, dy - r);
+        if (dx < dy) nx = Math.sign(x + 0.5 - w / 2); else ny = Math.sign(y + 0.5 - h / 2);
+      }
+      const t = Math.max(0, Math.min(1, 1 - d / bezel));
+      const m = t * t; // steeper right at the rim
+      const i = (y * w + x) * 4;
+      // Sample from further inside near the rim: the edge magnifies like a lens.
+      img.data[i] = 128 - nx * m * 127;
+      img.data[i + 1] = 128 - ny * m * 127;
+      img.data[i + 2] = 128;
+      img.data[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return c.toDataURL();
+}
+
+function useLiquidFilter(ref, id) {
+  const [map, setMap] = useState(null);
+  useEffect(() => {
+    if (!CHROMIUM) return undefined;
+    const el = ref.current;
+    let t = 0;
+    const make = () => {
+      const w = Math.round(el.offsetWidth);
+      const h = Math.round(el.offsetHeight);
+      if (!w || !h) return;
+      const r = parseFloat(getComputedStyle(el).borderTopLeftRadius) || h / 2;
+      setMap({ w, h, href: displacementMap(w, h, Math.min(r, h / 2), Math.min(22, h / 2)) });
+    };
+    const ro = new ResizeObserver(() => { clearTimeout(t); t = setTimeout(make, 80); });
+    ro.observe(el);
+    make();
+    return () => { ro.disconnect(); clearTimeout(t); };
+  }, [ref, id]);
+  if (!map) return null;
+  return (
+    <svg className="liquid-filter" width="0" height="0" aria-hidden="true" focusable="false">
+      <filter id={id} x="0" y="0" width={map.w} height={map.h} filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+        <feImage href={map.href} x="0" y="0" width={map.w} height={map.h} result="map" preserveAspectRatio="none" />
+        <feDisplacementMap in="SourceGraphic" in2="map" scale="34" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
+  );
+}
 
 const rgba = c => (c.match(/[\d.]+/g) || []).map(Number);
 const lum = ([r, g, b]) => {
@@ -16,7 +90,7 @@ const lum = ([r, g, b]) => {
 // The colour of whatever section sits right under the header (sampled in the side gutter,
 // so cards and photos never count — only the section backgrounds do).
 function colourUnder(header) {
-  const y = Math.min(header.offsetHeight + 1, window.innerHeight - 1);
+  const y = Math.min(header.offsetTop + header.offsetHeight / 2, window.innerHeight - 1);
   // The pinned "Me" stage paints its navy panel on a pointer-less layer, so read its progress instead.
   const me = document.querySelector('#me:not(.me--static)');
   if (me) {
@@ -48,6 +122,7 @@ export default function SiteHeader() {
   const [bg, setBg] = useState('');
   const [dark, setDark] = useState(false);
   const [active, setActive] = useState('');
+  const liquid = useLiquidFilter(ref, 'site-header-glass');
 
   useEffect(() => {
     const header = ref.current;
@@ -62,12 +137,12 @@ export default function SiteHeader() {
       setBg(c);
       setDark(isDark);
       meta.content = c;
-      const line = header.offsetHeight + 1;
+      const line = header.offsetTop + header.offsetHeight + 1;
       setActive(SECTIONS.find(id => {
         const r = document.getElementById(id)?.getBoundingClientRect();
         return r && r.top <= line && r.bottom > line;
       }) || '');
-      document.documentElement.style.setProperty('--hdr-h', `${header.offsetHeight}px`);
+      document.documentElement.style.setProperty('--hdr-h', `${header.offsetTop + header.offsetHeight}px`);
     };
     const queue = () => { if (!raf) raf = requestAnimationFrame(update); };
     update();
@@ -85,7 +160,7 @@ export default function SiteHeader() {
   return (
     <header
       ref={ref}
-      className="site-header"
+      className={`site-header${CHROMIUM ? ' site-header--liquid' : ''}`}
       data-shown={shown ? '' : undefined}
       data-dark={dark ? '' : undefined}
       style={bg ? { '--hdr-bg': bg } : undefined}
@@ -120,11 +195,7 @@ export default function SiteHeader() {
           </a>
         ))}
       </nav>
-      {/* Corner flourish: the same two ornament pieces, placed with the exact transforms from Figma (DESKTOP / Frame 3). */}
-      <span className="site-header__corner" aria-hidden="true">
-        <img src={asset('v3/ornament.png')} alt="" style={{ width: 38.28, height: 277, transform: 'matrix(-1, 0, 0, -1, 93.28, 80)' }} />
-        <img src={asset('v3/ornament.png')} alt="" style={{ width: 39, height: 282.23, transform: 'matrix(0, 1, 1, 0, 0, -17)' }} />
-      </span>
+      {liquid}
     </header>
   );
 }

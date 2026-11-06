@@ -8,6 +8,15 @@ import Arrow from '../components/Arrow.jsx';
 // Smaller copies made at build time (scripts/responsive-images.mjs): foo.jpg → foo@720.jpg, foo@1440.jpg.
 // Not in the local file:// preview build, which has no such step.
 const RESPONSIVE = import.meta.env.BASE_URL !== './';
+
+// A recruiter's first pass: what the problem was, what I did, the decision that mattered,
+// and what is still not proven.
+const SUMMARY = [
+  ['problem', 'Problem'],
+  ['role', 'My role'],
+  ['decision', 'Key decision'],
+  ['unvalidated', 'Not yet validated'],
+];
 const srcSetOf = pg => {
   if (!RESPONSIVE || !pg.w) return undefined;
   const at = w => asset(pg.src.replace(/(\.[a-z]+)$/i, `@${w}$1`));
@@ -33,14 +42,16 @@ function prefetch(project) {
   document.head.appendChild(link);
 }
 
-const COLLAPSE_AT = 240; // px of scrolling until the red curtain is fully folded
-
 /*
- * One layout for all four projects: a fixed-height page with the red curtain on top
- * and a scrolling area under it (an iframe for the case studies, a div for the Figma pages).
- * Whatever scrolls inside drives --p (0 → 1), so the curtain folds into a slim bar the same way
- * everywhere. The case studies are on the same origin (blik.design: the DeciBuy and leeway0.1 project sites are served under the user site's custom domain), so their
- * scroll and swipes can be read from inside the iframe.
+ * One layout for all projects: a fixed-height page with the curtain on top (name, one line,
+ * and for the case studies a recruiter summary) and a scrolling area under it (an iframe for the
+ * case studies, a div for the Figma pages).
+ *
+ * The curtain closes FIRST: while it is open, wheel, swipe and keyboard scrolling fold it
+ * (--p 0 → 1) and the content underneath stays put. Only once it is a slim bar does the case
+ * itself start to scroll. Scrolling back up to the very top of the case opens it again.
+ * The case studies are on the same origin (blik.design), so their scroll and swipes can be read
+ * from inside the iframe.
  */
 export default function Project() {
   const { slug } = useParams();
@@ -53,6 +64,7 @@ export default function Project() {
   const scrollerRef = useRef(null);
   const frameRef = useRef(null);
   const goRef = useRef(null);
+  const frameApiRef = useRef(null);
 
   const goTo = useCallback(target => navigateWithTransition(navigate, `/work/${target.slug}/`, null), [navigate]);
   const close = useCallback(() => navigate('/', { state: { scrollTo: 'works' } }), [navigate]);
@@ -69,10 +81,85 @@ export default function Project() {
     return () => { document.title = 'Kirill Blik · Product Designer'; };
   }, [p.name]);
 
-  const setProgress = useCallback(y => {
-    const v = Math.min(1, Math.max(0, y / COLLAPSE_AT));
-    rootRef.current?.style.setProperty('--p', v.toFixed(3));
+  // How far the curtain has folded, in px of scrolling (0 … its own height).
+  const foldRef = useRef(0);
+  // Measured once per project while the curtain is open: folding takes as much scrolling
+  // as the curtain shrinks (240–480 px).
+  const foldMaxRef = useRef(260);
+  const foldMax = useCallback(() => foldMaxRef.current, []);
+  const measureFold = useCallback(() => {
+    const c = rootRef.current?.querySelector('.project__curtain');
+    if (c && foldRef.current === 0) foldMaxRef.current = Math.min(480, Math.max(240, c.offsetHeight - 64));
   }, []);
+  const setFold = useCallback(px => {
+    const max = foldMax();
+    foldRef.current = Math.min(max, Math.max(0, px));
+    rootRef.current?.style.setProperty('--p', (foldRef.current / max).toFixed(3));
+  }, [foldMax]);
+
+  /*
+   * The curtain takes the scroll first. `getTop` reads how far the content underneath is scrolled,
+   * `scrollBy` moves it. Returns a cleanup.
+   */
+  const attachFold = useCallback((target, { getTop, setTop, scrollBy, scrollEl }) => {
+    const take = (dy, e) => {
+      const max = foldMax();
+      const f = foldRef.current;
+      if (dy > 0 && f < max) {
+        e?.cancelable && e.preventDefault();
+        setFold(f + dy);
+        return true;
+      }
+      if (dy < 0 && f > 0 && getTop() <= 0) {
+        e?.cancelable && e.preventDefault();
+        setFold(f + dy);
+        return true;
+      }
+      return false;
+    };
+    const lineH = 40;
+    const onWheel = e => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return; // sideways swipes switch projects
+      const dy = e.deltaMode === 1 ? e.deltaY * lineH : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+      // Over the curtain (not over the content), a closed curtain passes the scroll on to the content.
+      if (!take(dy, e) && scrollBy && !e.target.closest?.('.project__scroller')) scrollBy(dy);
+    };
+    let lastY = null;
+    const onStart = e => { lastY = e.touches[0]?.clientY ?? null; };
+    const onMove = e => {
+      if (lastY === null || e.touches.length !== 1) return;
+      const y = e.touches[0].clientY;
+      const dy = lastY - y;
+      lastY = y;
+      take(dy, e);
+    };
+    const onEnd = () => { lastY = null; };
+    // Keyboard, scrollbar drag, iOS momentum: if the content moved while the curtain is still open,
+    // hand that distance to the curtain and put the content back.
+    const onScroll = () => {
+      const top = getTop();
+      const max = foldMax();
+      const f = foldRef.current;
+      if (top > 0 && f < max) {
+        const use = Math.min(max - f, top);
+        setFold(f + use);
+        setTop(top - use);
+      }
+    };
+    target.addEventListener('wheel', onWheel, { passive: false });
+    target.addEventListener('touchstart', onStart, { passive: true });
+    target.addEventListener('touchmove', onMove, { passive: false });
+    target.addEventListener('touchend', onEnd, { passive: true });
+    const scrolls = scrollEl || target;
+    scrolls.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      target.removeEventListener('wheel', onWheel);
+      target.removeEventListener('touchstart', onStart);
+      target.removeEventListener('touchmove', onMove);
+      target.removeEventListener('touchend', onEnd);
+      scrolls.removeEventListener('scroll', onScroll);
+    };
+  }, [foldMax, setFold]);
 
   // Horizontal trackpad swipe and keyboard → previous / next project (desktop).
   // No touch swipe on phones: case studies have their own swipeable carousels (DeciBuy's cards),
@@ -122,18 +209,26 @@ export default function Project() {
   // Gestures on the page itself.
   useEffect(() => attachGestures(window), [attachGestures]);
 
-  // Scroll of the Figma pages.
+  // Curtain + Figma pages (a scrolling div), and the curtain area of every project.
   useEffect(() => {
-    setProgress(0);
+    setFold(0);
+    measureFold();
     const el = scrollerRef.current;
-    if (!el) return undefined;
-    el.scrollTop = 0;
-    const on = () => setProgress(el.scrollTop);
-    el.addEventListener('scroll', on, { passive: true });
-    return () => el.removeEventListener('scroll', on);
-  }, [slug, setProgress]);
+    if (el) el.scrollTop = 0;
+    return attachFold(window, el ? {
+      getTop: () => el.scrollTop,
+      setTop: v => { el.scrollTop = v; },
+      scrollBy: dy => { el.scrollTop += dy; },
+      scrollEl: el,
+    } : {
+      getTop: () => frameApiRef.current?.top() ?? 0,
+      setTop: () => {},
+      scrollBy: dy => frameApiRef.current?.by(dy),
+      scrollEl: document.createElement('div'), // the iframe's own scroll is handled below
+    });
+  }, [slug, setFold, attachFold, measureFold]);
 
-  // Scroll + gestures inside the case-study iframe.
+  // Curtain + gestures inside the case-study iframe.
   useEffect(() => {
     const frame = frameRef.current;
     if (!frame) return undefined;
@@ -144,21 +239,26 @@ export default function Project() {
         const win = frame.contentWindow;
         const doc = frame.contentDocument;
         if (!win || !doc) return;
-        const on = () => setProgress(win.scrollY || doc.scrollingElement?.scrollTop || 0);
-        win.addEventListener('scroll', on, { passive: true });
-        const off = attachGestures(win, { keys: false }); // arrow keys stay with the case itself
-        on();
-        cleanup = () => { win.removeEventListener('scroll', on); off(); };
+        const se = () => doc.scrollingElement || doc.documentElement;
+        const offFold = attachFold(win, {
+          getTop: () => win.scrollY || se().scrollTop || 0,
+          setTop: v => win.scrollTo(0, v),
+          scrollBy: null,
+        });
+        const offGestures = attachGestures(win, { keys: false }); // arrow keys stay with the case itself
+        // Scrolling the page around the iframe (curtain area) moves the case once the curtain is closed.
+        frameApiRef.current = { top: () => win.scrollY || se().scrollTop || 0, by: dy => win.scrollBy(0, dy) };
+        cleanup = () => { offFold(); offGestures(); frameApiRef.current = null; };
       } catch {
         // Different origin: the curtain then folds as soon as the pointer enters the case.
-        const fold = () => setProgress(COLLAPSE_AT);
+        const fold = () => setFold(foldMax());
         frame.addEventListener('pointerenter', fold);
         cleanup = () => frame.removeEventListener('pointerenter', fold);
       }
     };
     frame.addEventListener('load', hook);
     return () => { frame.removeEventListener('load', hook); cleanup(); };
-  }, [slug, setProgress, attachGestures]);
+  }, [slug, setFold, foldMax, attachFold, attachGestures]);
 
   return (
     <main className="project" ref={rootRef} style={{ viewTransitionName: 'project-sheet' }}>
@@ -166,13 +266,25 @@ export default function Project() {
         <div className="project__titles">
           <h1 className="project__name serif">{p.name}</h1>
           <p className="project__about">{p.about}</p>
+          {p.summary && (
+            <dl className="project__summary" aria-label="Summary">
+              {SUMMARY.map(([key, label]) => p.summary[key] && (
+                <div key={key} className="project__fact">
+                  <dt>{label}</dt>
+                  <dd>{p.summary[key]}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </div>
         <div className="project__tools">
           {p.type === 'case' && (
-            <a className="project__open" href={p.url} target="_blank" rel="noreferrer">Open in a new tab <Arrow /></a>
+            <a className="project__open" href={p.url} target="_blank" rel="noreferrer" aria-label={`Open the ${p.name} case study as its own page`}>
+              <span className="project__open-label">Open as a page</span> <Arrow />
+            </a>
           )}
           <span className="project__count" aria-label={`Project ${index + 1} of ${projects.length}`}>{index + 1} / {projects.length}</span>
-          <button type="button" className="project__close" onClick={close} aria-label="Close and go back to My works">
+          <button type="button" className="project__close" onClick={close} aria-label="Close and go back to Selected work">
             <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 2l14 14M16 2L2 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
           </button>
         </div>

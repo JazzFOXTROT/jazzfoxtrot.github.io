@@ -54,7 +54,8 @@ export function animateScroll(to, duration = 900) {
 // it has to start exactly at the top for its scroll-driven opening to play.
 export const headerOffset = el => {
   if (el.id === 'me' && !el.classList.contains('me--static')) return 0;
-  return document.querySelector('.site-header')?.offsetHeight || 0;
+  const h = document.querySelector('.site-header');
+  return h ? h.offsetTop + h.offsetHeight + 8 : 0;
 };
 const topOf = el => () => el.getBoundingClientRect().top + window.scrollY - headerOffset(el);
 

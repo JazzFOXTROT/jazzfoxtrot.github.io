@@ -1,6 +1,5 @@
 import { contacts, resume } from '../content.js';
 import { asset, file } from '../asset.js';
-import Ornament from '../components/Ornament.jsx';
 import Arrow from '../components/Arrow.jsx';
 
 function TildeLink({ href, children, ...rest }) {
@@ -17,7 +16,7 @@ export default function Contacts() {
   return (
     <footer id="contacts" className="contacts" aria-labelledby="contacts-title">
       <div className="section-rule section-rule--end">
-        <img className="contacts__dots" src={asset('v3/dots.png')} alt="" aria-hidden="true" />
+        <img className="contacts__dots" src={asset('v4/dots.png')} alt="" aria-hidden="true" />
         <span className="section-rule__line" aria-hidden="true" />
         <h2 id="contacts-title" className="contacts__title serif">Contacts</h2>
       </div>
@@ -36,7 +35,8 @@ export default function Contacts() {
         <li><TildeLink href={file(resume)} target="_blank" rel="noreferrer">Resume</TildeLink></li>
       </ul>
       <p className="contacts__small">© {new Date().getFullYear()} Kirill Blik</p>
-      <Ornament corner="bottom-left" className="contacts__ornament" />
+      {/* Figma V4: grainy blue and cream line in the bottom-left corner. */}
+      <img className="contacts__line" src={asset('v4/contacts-line.svg')} alt="" aria-hidden="true" />
     </footer>
   );
 }

@@ -176,7 +176,7 @@ const homeMeta = {
   title: HOME_TITLE,
   desc: HOME_DESC,
   url: `${SITE}/`,
-  image: abs('/og/home.jpg'),
+  image: abs('/og/home-v4.jpg'),
   imageW: 1200,
   imageH: 630,
   imageAlt: `${NAME}, ${ROLE}: portfolio`,
