@@ -46,7 +46,7 @@ import worksData from './data/works.json';
 export const groups = worksData.groups;
 export const projects = worksData.projects.filter(p => !p.hidden && groups.some(g => g.id === p.group));
 // Same order as on the home page: the selected-work mosaic alternates a big card (first group)
-// with a small one (the other groups): TakeNotes, Turkey, DeciBuy, Photographer, Leeway.
+// with a small one (the other groups): TakeNotes, Turkey, DeciBuy, Middle East, Leeway.
 const interleave = (big, small) => {
   const out = [];
   for (let i = 0; i < Math.max(big.length, small.length); i += 1) {

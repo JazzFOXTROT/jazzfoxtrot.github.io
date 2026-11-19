@@ -114,6 +114,19 @@
       "card2x": "v3/card-travel-v4@2x.jpg"
     },
     {
+      "slug": "middle-east",
+      "name": "Middle East",
+      "card": "v3/card-middle-east.jpg",
+      "cardTitle": "Brand · Web design",
+      "tags": "Personal project · Brand identity · Web design · Live site",
+      "about": "A brand and website for a band that only half exists. My friends and I used to play together for fun: Alex Turner's songs from Arctic Monkeys and The Last Shadow Puppets, Muse, lesser-known British indie, and a few songs of our own. So we imagined ourselves as a real band. Designed in Figma and built as a live site.",
+      "type": "case",
+      "group": "more",
+      "hidden": false,
+      "card2x": "v3/card-middle-east@2x.jpg",
+      "url": "/middle-east/"
+    },
+    {
       "slug": "photographer",
       "name": "William Smith Photography",
       "card": "v3/card-photographer-v4.jpg",
@@ -122,7 +135,7 @@
       "about": "A one-page portfolio for a wedding and commercial photographer (fictional client), designed in Figma.",
       "type": "pages",
       "group": "more",
-      "hidden": false,
+      "hidden": true,
       "pages": [
         {
           "src": "projects/photographer-home.jpg",

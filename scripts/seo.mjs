@@ -37,7 +37,7 @@ const ROLE = 'Product Designer';
 const HOME_TITLE = `${NAME} · ${ROLE}`;
 const HOME_DESC =
   `${NAME} is a product and UX/UI designer with a graphic design background. ` +
-  `Case studies: ${projects.filter(p => p.type === 'case').map(p => p.name).join(' and ')}, ` +
+  `Case studies: ${projects.filter(p => p.type === 'case' && p.group === 'main').map(p => p.name).join(' and ')}, ` +
   `web design and commercial design for global brands.`;
 
 const person = {
