@@ -334,7 +334,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .project__about {
   margin: calc(16px * (1 - var(--p))) 0 0;
   max-width: 760px;
-  max-height: calc((1 - var(--p)) * 7em);
+  max-height: calc((1 - var(--p)) * 10em);
   overflow: hidden;
   opacity: calc(1 - var(--p) * 1.8);
   color: var(--paper);
@@ -824,7 +824,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .project__curtain { display: block; }
   .project__name { padding-right: 100px; }
   .project__tools { position: absolute; right: 16px; top: calc(40px - 26px * var(--p)); padding-top: 0; }
-  .project__about { font-size: 17px; max-height: calc((1 - var(--p)) * 12em); }
+  .project__about { font-size: 17px; max-height: calc((1 - var(--p)) * 15em); }
   .project__summary { grid-template-columns: 1fr; gap: 12px; max-height: calc((1 - var(--p)) * 40em); }
   .project__fact { padding-top: 8px; }
   .project__fact dt { font-size: 11px; }
